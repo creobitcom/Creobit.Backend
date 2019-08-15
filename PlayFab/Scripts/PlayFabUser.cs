@@ -1,4 +1,5 @@
-﻿using PlayFab;
+﻿#if CREOBIT_BACKEND_PLAYFAB
+using PlayFab;
 using PlayFab.ClientModels;
 using System;
 
@@ -77,3 +78,4 @@ namespace Creobit.Backend
         #endregion
     }
 }
+#endif

@@ -1,4 +1,5 @@
-﻿namespace Creobit.Backend
+﻿#if CREOBIT_BACKEND_STEAM
+namespace Creobit.Backend
 {
     public interface ISteamAuth : IAuth
     {
@@ -16,3 +17,4 @@
         #endregion
     }
 }
+#endif

@@ -1,7 +1,4 @@
-﻿#if UNITY_ANDROID && !UNITY_EDITOR
-#define ENABLED
-#endif
-#if ENABLED
+﻿#if CREOBIT_BACKEND_GOOGLEPLAYPLAYFAB && CREOBIT_BACKEND_PLAYFAB
 using PlayFab;
 using PlayFab.ClientModels;
 using System;
@@ -396,44 +393,6 @@ namespace Creobit.Backend
         }
 
         #endregion
-    }
-}
-#else
-using System;
-using System.Collections.Generic;
-using UnityEngine.Purchasing;
-
-namespace Creobit.Backend
-{
-    public sealed class GooglePlayPlayFabStore : IPlayFabStore
-    {
-        IEnumerable<IProduct> IStore.Products => throw new NotSupportedException();
-
-        void IStore.LoadProducts(Action onComplete, Action onFailure) => throw new NotSupportedException();
-
-        string IPlayFabStore.CatalogVersion => throw new NotSupportedException();
-
-        string IPlayFabStore.StoreId => throw new NotSupportedException();
-
-        IEnumerable<(string CurrencyId, string VirtualCurrency)> IPlayFabStore.CurrencyMap => throw new NotSupportedException();
-
-        IEnumerable<(string ProductId, string ItemId)> IPlayFabStore.ProductMap => throw new NotSupportedException();
-
-        public GooglePlayPlayFabStore(IPlayFabStore playFabStore)
-        {
-        }
-
-        public IEnumerable<(string ProductId, ProductType ProductType)> ProductMap
-        {
-            get;
-            set;
-        } = Array.Empty<ValueTuple<string, ProductType>>();
-
-        public string PublicKey
-        {
-            get;
-            set;
-        }
     }
 }
 #endif

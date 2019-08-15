@@ -1,7 +1,4 @@
-﻿#if UNITY_EDITOR || UNITY_STANDALONE
-#define ENABLED
-#endif
-#if ENABLED
+﻿#if CREOBIT_BACKEND_STEAM
 using Steamworks;
 using System;
 using System.Collections.Generic;
@@ -132,30 +129,6 @@ namespace Creobit.Backend
         }
 
         #endregion
-    }
-}
-#else
-using System;
-
-namespace Creobit.Backend
-{
-    public sealed class SteamAuth : ISteamAuth
-    {
-        bool IAuth.IsLoggedIn => throw new NotSupportedException();
-
-        void IAuth.Login(Action onComplete, Action onFailure) => throw new NotSupportedException();
-
-        void IAuth.Logout(Action onComplete, Action onFailure) => throw new NotSupportedException();
-
-        uint ISteamAuth.AppId => throw new NotSupportedException();
-
-        string ISteamAuth.CreateAuthSessionTicket() => throw new NotSupportedException();
-
-        void ISteamAuth.DestroyAuthSessionTicket(string authSessionTicket) => throw new NotSupportedException();
-
-        public SteamAuth(uint appId)
-        {
-        }
     }
 }
 #endif

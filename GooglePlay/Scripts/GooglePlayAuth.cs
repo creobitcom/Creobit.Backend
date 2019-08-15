@@ -1,7 +1,4 @@
-﻿#if UNITY_ANDROID && !UNITY_EDITOR
-#define ENABLED
-#endif
-#if ENABLED
+﻿#if CREOBIT_BACKEND_GOOGLEPLAY
 using GooglePlayGames;
 using GooglePlayGames.BasicApi;
 using System;
@@ -137,26 +134,6 @@ namespace Creobit.Backend
         } = Backend.ExceptionHandler.Default;
 
         #endregion
-    }
-}
-#else
-using System;
-
-namespace Creobit.Backend
-{
-    public sealed class GooglePlayAuth : IGooglePlayAuth
-    {
-        bool IAuth.IsLoggedIn => throw new NotSupportedException();
-
-        void IAuth.Login(Action onComplete, Action onFailure) => throw new NotSupportedException();
-
-        void IAuth.Logout(Action onComplete, Action onFailure) => throw new NotSupportedException();
-
-        void IGooglePlayAuth.GetServerAuthCode(Action<string> onComplete, Action onFailure) => throw new NotSupportedException();
-
-        public GooglePlayAuth()
-        {
-        }
     }
 }
 #endif

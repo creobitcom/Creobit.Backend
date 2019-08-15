@@ -1,4 +1,5 @@
-﻿using PlayFab;
+﻿#if CREOBIT_BACKEND_PLAYFAB
+using PlayFab;
 using PlayFab.ClientModels;
 using System;
 using System.Collections.Generic;
@@ -143,7 +144,7 @@ namespace Creobit.Backend
 
         public PlayFabStore(string catalogVersion, string storeId)
         {
-            CatalogVersion = catalogVersion;
+            CatalogVersion = string.IsNullOrWhiteSpace(catalogVersion) ? null : catalogVersion;
             StoreId = string.IsNullOrWhiteSpace(storeId) ? null : storeId;
         }
 
@@ -390,3 +391,4 @@ namespace Creobit.Backend
         #endregion
     }
 }
+#endif

@@ -1,7 +1,4 @@
-﻿#if UNITY_EDITOR || UNITY_STANDALONE
-#define ENABLED
-#endif
-#if ENABLED
+﻿#if CREOBIT_BACKEND_PLAYFAB && CREOBIT_BACKEND_STEAM
 using System;
 
 namespace Creobit.Backend
@@ -27,22 +24,6 @@ namespace Creobit.Backend
         }
 
         #endregion
-    }
-}
-#else
-using System;
-
-namespace Creobit.Backend
-{
-    public sealed class SteamPlayFabUser : IPlayFabUser, ISteamUser
-    {
-        string IUser.UserName => throw new NotSupportedException();
-
-        void IUser.SetUserName(string userName, Action onComplete, Action onFailure) => throw new NotSupportedException();
-
-        public SteamPlayFabUser(IPlayFabUser playFabUser, ISteamUser steamUser)
-        {
-        }
     }
 }
 #endif

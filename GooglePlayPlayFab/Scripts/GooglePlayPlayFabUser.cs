@@ -1,7 +1,4 @@
-﻿#if UNITY_ANDROID && !UNITY_EDITOR
-#define ENABLED
-#endif
-#if ENABLED
+﻿#if CREOBIT_BACKEND_GOOGLEPLAYPLAYFAB && CREOBIT_BACKEND_PLAYFAB
 using System;
 
 namespace Creobit.Backend
@@ -27,22 +24,6 @@ namespace Creobit.Backend
         }
 
         #endregion
-    }
-}
-#else
-using System;
-
-namespace Creobit.Backend
-{
-    public sealed class GooglePlayPlayFabUser : IPlayFabUser, IGooglePlayUser
-    {
-        string IUser.UserName => throw new NotSupportedException();
-
-        void IUser.SetUserName(string userName, Action onComplete, Action onFailure) => throw new NotSupportedException();
-
-        public GooglePlayPlayFabUser(IPlayFabUser playFabUser, IGooglePlayUser googlePlayUser)
-        {
-        }
     }
 }
 #endif

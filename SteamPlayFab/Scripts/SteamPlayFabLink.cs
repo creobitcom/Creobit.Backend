@@ -1,7 +1,4 @@
-﻿#if UNITY_EDITOR || UNITY_STANDALONE
-#define ENABLED
-#endif
-#if ENABLED
+﻿#if CREOBIT_BACKEND_PLAYFAB && CREOBIT_BACKEND_STEAM
 using PlayFab;
 using PlayFab.ClientModels;
 using System;
@@ -198,22 +195,6 @@ namespace Creobit.Backend
         } = Backend.PlayFabErrorHandler.Default;
 
         #endregion
-    }
-}
-#else
-using System;
-
-namespace Creobit.Backend
-{
-    public sealed class SteamPlayFabLink : IPlayFabLink
-    {
-        void ILink.Link(string linkKey, Action onComplete, Action onFailure) => throw new NotSupportedException();
-
-        void ILink.RequestLinkKey(int linkKeyLenght, Action<string> onComplete, Action onFailure) => throw new NotSupportedException();
-
-        public SteamPlayFabLink(IPlayFabLink playFabLink, ISteamPlayFabAuth steamPlayFabAuth)
-        {
-        }
     }
 }
 #endif

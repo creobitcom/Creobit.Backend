@@ -1,7 +1,4 @@
-﻿#if UNITY_ANDROID && !UNITY_EDITOR
-#define ENABLED
-#endif
-#if ENABLED
+﻿#if CREOBIT_BACKEND_GOOGLEPLAY
 using GooglePlayGames;
 using System;
 
@@ -32,18 +29,6 @@ namespace Creobit.Backend
         } = Backend.ExceptionHandler.Default;
 
         #endregion
-    }
-}
-#else
-using System;
-
-namespace Creobit.Backend
-{
-    public sealed class GooglePlayUser : IGooglePlayUser
-    {
-        string IUser.UserName => throw new NotSupportedException();
-
-        void IUser.SetUserName(string userName, Action onComplete, Action onFailure) => throw new NotSupportedException();
     }
 }
 #endif

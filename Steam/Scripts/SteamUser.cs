@@ -1,7 +1,4 @@
-﻿#if UNITY_EDITOR || UNITY_STANDALONE
-#define ENABLED
-#endif
-#if ENABLED
+﻿#if CREOBIT_BACKEND_STEAM
 using Steamworks;
 using System;
 
@@ -32,18 +29,6 @@ namespace Creobit.Backend
         } = Backend.ExceptionHandler.Default;
 
         #endregion
-    }
-}
-#else
-using System;
-
-namespace Creobit.Backend
-{
-    public sealed class SteamUser : ISteamUser
-    {
-        string IUser.UserName => throw new NotSupportedException();
-
-        void IUser.SetUserName(string userName, Action onComplete, Action onFailure) => throw new NotSupportedException();
     }
 }
 #endif

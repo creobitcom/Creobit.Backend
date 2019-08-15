@@ -1,4 +1,5 @@
-﻿namespace Creobit.Backend
+﻿#if CREOBIT_BACKEND_PLAYFAB
+namespace Creobit.Backend
 {
     public static class PlayFabStoreExtensions
     {
@@ -59,3 +60,4 @@
         #endregion
     }
 }
+#endif
