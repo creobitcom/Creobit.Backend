@@ -1,0 +1,17 @@
+{
+    "name": "Creobit.Backend.GooglePlay",
+    "references": [
+        "GUID:03e76b878b964554dbbf2ef0df9e850a"
+    ],
+    "includePlatforms": [
+        "Android",
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": []
+}
