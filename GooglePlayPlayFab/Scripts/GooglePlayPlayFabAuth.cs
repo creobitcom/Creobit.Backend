@@ -1,7 +1,4 @@
-﻿#if UNITY_ANDROID && !UNITY_EDITOR
-#define ENABLED
-#endif
-#if ENABLED
+﻿#if CREOBIT_BACKEND_GOOGLEPLAYPLAYFAB && CREOBIT_BACKEND_PLAYFAB
 using PlayFab;
 using PlayFab.ClientModels;
 using System;
@@ -122,35 +119,6 @@ namespace Creobit.Backend
         } = Backend.PlayFabErrorHandler.Default;
 
         #endregion
-    }
-}
-#else
-using PlayFab.ClientModels;
-using System;
-
-namespace Creobit.Backend
-{
-    public sealed class GooglePlayPlayFabAuth : IGooglePlayPlayFabAuth
-    {
-        bool IAuth.IsLoggedIn => throw new NotSupportedException();
-
-        void IAuth.Login(Action onComplete, Action onFailure) => throw new NotSupportedException();
-
-        void IAuth.Logout(Action onComplete, Action onFailure) => throw new NotSupportedException();
-
-        LoginResult IPlayFabAuth.LoginResult
-        {
-            get => throw new NotSupportedException();
-            set => throw new NotSupportedException();
-        }
-
-        string IPlayFabAuth.TitleId => throw new NotSupportedException();
-
-        void IGooglePlayAuth.GetServerAuthCode(Action<string> onComplete, Action onFailure) => throw new NotSupportedException();
-
-        public GooglePlayPlayFabAuth(IPlayFabAuth playFabAuth, IGooglePlayAuth googlePlayAuth)
-        {
-        }
     }
 }
 #endif

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿#if CREOBIT_BACKEND_PLAYFAB
+using System.Collections.Generic;
 
 namespace Creobit.Backend
 {
@@ -31,3 +32,4 @@ namespace Creobit.Backend
         #endregion
     }
 }
+#endif

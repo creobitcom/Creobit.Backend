@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if CREOBIT_BACKEND_PLAYFAB
+using System;
 using System.Reflection;
 
 namespace Creobit.Backend
@@ -37,3 +38,4 @@ namespace Creobit.Backend
         #endregion
     }
 }
+#endif

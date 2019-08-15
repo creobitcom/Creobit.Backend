@@ -1,7 +1,4 @@
-﻿#if UNITY_EDITOR || UNITY_STANDALONE
-#define ENABLED
-#endif
-#if ENABLED
+﻿#if CREOBIT_BACKEND_PLAYFAB && CREOBIT_BACKEND_STEAM
 using PlayFab;
 using PlayFab.ClientModels;
 using System;
@@ -128,39 +125,6 @@ namespace Creobit.Backend
         } = Backend.PlayFabErrorHandler.Default;
 
         #endregion
-    }
-}
-#else
-using PlayFab.ClientModels;
-using System;
-
-namespace Creobit.Backend
-{
-    public sealed class SteamPlayFabAuth : ISteamPlayFabAuth
-    {
-        bool IAuth.IsLoggedIn => throw new NotSupportedException();
-
-        void IAuth.Login(Action onComplete, Action onFailure) => throw new NotSupportedException();
-
-        void IAuth.Logout(Action onComplete, Action onFailure) => throw new NotSupportedException();
-
-        LoginResult IPlayFabAuth.LoginResult
-        {
-            get => throw new NotSupportedException();
-            set => throw new NotSupportedException();
-        }
-
-        string IPlayFabAuth.TitleId => throw new NotSupportedException();
-
-        uint ISteamAuth.AppId => throw new NotSupportedException();
-
-        string ISteamAuth.CreateAuthSessionTicket() => throw new NotSupportedException();
-
-        void ISteamAuth.DestroyAuthSessionTicket(string authSessionTicket) => throw new NotSupportedException();
-
-        public SteamPlayFabAuth(IPlayFabAuth playFabAuth, ISteamAuth steamAuth)
-        {
-        }
     }
 }
 #endif

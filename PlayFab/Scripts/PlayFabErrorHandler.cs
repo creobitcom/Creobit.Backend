@@ -1,4 +1,5 @@
-﻿using PlayFab;
+﻿#if CREOBIT_BACKEND_PLAYFAB
+using PlayFab;
 using UnityEngine;
 
 namespace Creobit.Backend
@@ -20,3 +21,4 @@ namespace Creobit.Backend
         #endregion
     }
 }
+#endif

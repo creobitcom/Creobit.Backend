@@ -1,4 +1,5 @@
-﻿using PlayFab;
+﻿#if CREOBIT_BACKEND_PLAYFAB
+using PlayFab;
 
 namespace Creobit.Backend
 {
@@ -11,3 +12,4 @@ namespace Creobit.Backend
         #endregion
     }
 }
+#endif

@@ -1,7 +1,4 @@
-﻿#if UNITY_ANDROID && !UNITY_EDITOR
-#define ENABLED
-#endif
-#if ENABLED
+﻿#if CREOBIT_BACKEND_GOOGLEPLAYPLAYFAB && CREOBIT_BACKEND_PLAYFAB
 using PlayFab;
 using PlayFab.ClientModels;
 using System;
@@ -197,22 +194,6 @@ namespace Creobit.Backend
         } = Backend.PlayFabErrorHandler.Default;
 
         #endregion
-    }
-}
-#else
-using System;
-
-namespace Creobit.Backend
-{
-    public sealed class GooglePlayPlayFabLink : IPlayFabLink
-    {
-        void ILink.Link(string linkKey, Action onComplete, Action onFailure) => throw new NotSupportedException();
-
-        void ILink.RequestLinkKey(int linkKeyLenght, Action<string> onComplete, Action onFailure) => throw new NotSupportedException();
-
-        public GooglePlayPlayFabLink(IPlayFabLink playFabLink, IGooglePlayPlayFabAuth googlePlayPlayFabAuth)
-        {
-        }
     }
 }
 #endif

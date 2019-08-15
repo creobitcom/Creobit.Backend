@@ -1,7 +1,4 @@
-﻿#if UNITY_EDITOR || UNITY_STANDALONE
-#define ENABLED
-#endif
-#if ENABLED
+﻿#if CREOBIT_BACKEND_PLAYFAB && CREOBIT_BACKEND_STEAM
 using PlayFab;
 using PlayFab.ClientModels;
 using Steamworks;
@@ -261,31 +258,6 @@ namespace Creobit.Backend
         }
 
         #endregion
-    }
-}
-#else
-using System;
-using System.Collections.Generic;
-
-namespace Creobit.Backend
-{
-    public sealed class SteamPlayFabStore : IPlayFabStore
-    {
-        IEnumerable<IProduct> IStore.Products => throw new NotSupportedException();
-
-        void IStore.LoadProducts(Action onComplete, Action onFailure) => throw new NotSupportedException();
-
-        string IPlayFabStore.CatalogVersion => throw new NotSupportedException();
-
-        string IPlayFabStore.StoreId => throw new NotSupportedException();
-
-        IEnumerable<(string CurrencyId, string VirtualCurrency)> IPlayFabStore.CurrencyMap => throw new NotSupportedException();
-
-        IEnumerable<(string ProductId, string ItemId)> IPlayFabStore.ProductMap => throw new NotSupportedException();
-
-        public SteamPlayFabStore(IPlayFabStore playFabStore)
-        {
-        }
     }
 }
 #endif

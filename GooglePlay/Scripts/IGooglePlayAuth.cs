@@ -1,4 +1,5 @@
-﻿using System;
+﻿#if CREOBIT_BACKEND_GOOGLEPLAY
+using System;
 
 namespace Creobit.Backend
 {
@@ -11,3 +12,4 @@ namespace Creobit.Backend
         #endregion
     }
 }
+#endif
