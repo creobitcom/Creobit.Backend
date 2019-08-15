@@ -1,0 +1,21 @@
+{
+    "name": "Creobit.Backend.SteamPlayFab",
+    "references": [
+        "GUID:03e76b878b964554dbbf2ef0df9e850a",
+        "GUID:429214aaa269ba24dad84efa26c19002",
+        "GUID:0792b034e181eac44a603100315274e7",
+        "GUID:e3712bda3d9154148b1501247f1986ab"
+    ],
+    "includePlatforms": [
+        "Editor",
+        "macOSStandalone",
+        "WindowsStandalone64"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": []
+}
