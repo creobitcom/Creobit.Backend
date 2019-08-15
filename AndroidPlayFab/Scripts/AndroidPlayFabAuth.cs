@@ -1,11 +1,12 @@
-﻿#if CREOBIT_BACKEND_CUSTOMPLAYFAB && CREOBIT_BACKEND_PLAYFAB
+﻿#if CREOBIT_BACKEND_ANDROIDPLAYFAB && CREOBIT_BACKEND_PLAYFAB
 using PlayFab;
 using PlayFab.ClientModels;
 using System;
+using UnityEngine;
 
 namespace Creobit.Backend
 {
-    public sealed class CustomPlayFabAuth : ICustomPlayFabAuth
+    public sealed class AndroidPlayFabAuth : IAndroidPlayFabAuth
     {
         #region IAuth
 
@@ -17,15 +18,17 @@ namespace Creobit.Backend
 
             try
             {
-                PlayFabClientAPI.LoginWithCustomID(
-                    new LoginWithCustomIDRequest()
+                PlayFabClientAPI.LoginWithAndroidDeviceID(
+                    new LoginWithAndroidDeviceIDRequest()
                     {
+                        AndroidDevice = SystemInfo.deviceModel,
+                        AndroidDeviceId = SystemInfo.deviceUniqueIdentifier,
                         CreateAccount = true,
-                        CustomId = CustomId,
                         InfoRequestParameters = new GetPlayerCombinedInfoRequestParams()
                         {
                             GetUserAccountInfo = true
                         },
+                        OS = SystemInfo.operatingSystem,
                         TitleId = PlayFabAuth.TitleId
                     },
                     result =>
@@ -63,15 +66,13 @@ namespace Creobit.Backend
         string IPlayFabAuth.TitleId => PlayFabAuth.TitleId;
 
         #endregion
-        #region CustomPlayFabAuth
+        #region AndroidPlayFabAuth
 
         private readonly IPlayFabAuth PlayFabAuth;
-        private readonly string CustomId;
 
-        public CustomPlayFabAuth(IPlayFabAuth playFabAuth, string customId)
+        public AndroidPlayFabAuth(IPlayFabAuth playFabAuth)
         {
             PlayFabAuth = playFabAuth;
-            CustomId = customId;
         }
 
         public IExceptionHandler ExceptionHandler
