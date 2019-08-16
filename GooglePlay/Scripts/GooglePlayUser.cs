@@ -1,4 +1,4 @@
-﻿#if CREOBIT_BACKEND_GOOGLEPLAY
+﻿#if CREOBIT_BACKEND_GOOGLEPLAY && UNITY_ANDROID
 using GooglePlayGames;
 using System;
 
