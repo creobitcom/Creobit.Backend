@@ -105,13 +105,15 @@ namespace Creobit.Backend
         #region GooglePlayPlayFabStore
 
         private readonly IPlayFabStore PlayFabStore;
+        private readonly string PublicKey;
 
         private IStoreController _storeController;
         private StoreListener _storeListener;
 
-        public GooglePlayPlayFabStore(IPlayFabStore playFabStore)
+        public GooglePlayPlayFabStore(IPlayFabStore playFabStore, string publicKey)
         {
             PlayFabStore = playFabStore;
+            PublicKey = publicKey;
         }
 
         public IExceptionHandler ExceptionHandler
@@ -132,12 +134,6 @@ namespace Creobit.Backend
             get;
             set;
         } = Array.Empty<ValueTuple<string, ProductType>>();
-
-        public string PublicKey
-        {
-            get;
-            set;
-        }
 
         private UProduct FindProduct(string productId)
         {
