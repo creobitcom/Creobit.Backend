@@ -54,6 +54,9 @@ var appStorePlayFabStore = new AppStorePlayFabStore(playFabStore)
 ## Установка
 Не требуется.
 
+## Инициализация
+Не требуется.
+
 ## Основные интерфейсы
 
 ### IApplicationData
@@ -76,14 +79,6 @@ void Login(Action onComplete, Action onFailure);
 
 // Выполнить выход.
 void Logout(Action onComplete, Action onFailure);
-```
-
-### IExceptionHandler
-Интерфейс обработки исключений.
-
-```csharp
-// Обработать исключение.
-void Process(Exception exception);
 ```
 
 ### ILink
@@ -140,6 +135,14 @@ void Write(object data, Action onComplete, Action onFailure);
 ```
 
 ## Вспомогательные интерфейсы
+
+### IExceptionHandler
+Интерфейс обработки исключений.
+
+```csharp
+// Обработать исключение.
+void Process(Exception exception);
+```
 
 ### IProduct
 Интерфейс продукта.
@@ -198,6 +201,16 @@ var customPlayFabLink = new CustomPlayFabLink(playFabLink, customPlayFabAuth);
 ```csharp
 var googlePlayAuth = new GooglePlayAuth();
 var googlePlayUser = new GooglePlayUser();
+```
+
+## Основные интерфейсы
+
+### IGooglePlayAuth
+Интерфейс аутентификации.
+
+```csharp
+// Получить код для авторизации.
+void GetServerAuthCode(Action<string> onComplete, Action onFailure);
 ```
 
 # Creobit.Backend.GooglePlayPlayFab
@@ -295,7 +308,18 @@ var playFabUserData = new PlayFabUserData();
 
 **PlayFabStore.ProductMap** - содержит список соответствия ключей продуктов (Ключ продукта приложения / Идентификатор предмета *PlayFab*).
 
-## Вспомогательные интерфейсы
+## Основные интерфейсы
+
+### IPlayFabAuth
+Интерфейс аутентификации.
+
+```csharp
+// Получить / установить LoginResult.
+LoginResult LoginResult { get; set; }
+
+// Получить TitleId.
+string TitleId { get; }
+```
 
 ### IPlayFabErrorHandler
 Интерфейс обработки ошибок *PlayFab*.
@@ -303,6 +327,40 @@ var playFabUserData = new PlayFabUserData();
 ```csharp
 // Обработать ошибку.
 void Process(PlayFabError playFabError);
+```
+
+### IPlayFabStore
+Интерфейс работы с магазином.
+
+```csharp
+// Получить CatalogVersion.
+string CatalogVersion { get; }
+
+// Получить StoreId.
+string StoreId { get; }
+
+// Получить карту соответствия валют.
+IEnumerable<(string CurrencyId, string VirtualCurrency)> CurrencyMap { get; }
+
+// Получить карту соответствия продуктов
+IEnumerable<(string ProductId, string ItemId)> ProductMap { get; }
+```
+
+### IPlayFabStore
+Интерфейс пользователя.
+
+```csharp
+// Получить идентификатор.
+string Id { get; }
+
+// Недавно создан.
+bool IsNewlyCreated { get; }
+
+// Получить карту соответствия валют.
+IEnumerable<(string CurrencyId, string VirtualCurrency)> CurrencyMap { get; }
+
+// Получить карту соответствия продуктов
+IEnumerable<(string ProductId, string ItemId)> ProductMap { get; }
 ```
 
 ## Расширения
@@ -320,6 +378,22 @@ TODO
 ```csharp
 var steamAuth = new SteamAuth(appId: 0);
 var steamUser = new SteamUser();
+```
+
+## Основные интерфейсы
+
+### ISteamAuth
+Интерфейс аутентификации.
+
+```csharp
+// Получить идентификатор приложения.
+uint AppId { get; }
+
+// Создать код для авторизации.
+string CreateAuthSessionTicket();
+
+// Уничтожить код для авторизации.
+void DestroyAuthSessionTicket(string authSessionTicket);
 ```
 
 # Creobit.Backend.SteamPlayFab
