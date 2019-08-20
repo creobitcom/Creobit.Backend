@@ -9,11 +9,11 @@ namespace Creobit.Backend
 
         private const int MillisecondsDelay = 10;
 
-        public static async Task SetUserNameAsync(this IUser self, string userName)
+        public static async Task SetNameAsync(this IUser self, string name)
         {
             var invokeResult = default(bool?);
 
-            self.SetUserName(userName,
+            self.SetName(name,
                 () => invokeResult = true,
                 () => invokeResult = false);
 

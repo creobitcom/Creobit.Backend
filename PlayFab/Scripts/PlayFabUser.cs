@@ -9,16 +9,51 @@ namespace Creobit.Backend
     {
         #region IUser
 
-        string IUser.UserName => TitleInfo.DisplayName;
+        string IUser.Name => TitleInfo.DisplayName;
 
-        void IUser.SetUserName(string userName, Action onComplete, Action onFailure)
+        void IUser.Refresh(Action onComplete, Action onFailure)
+        {
+            try
+            {
+                PlayFabClientAPI.GetPlayerCombinedInfo(
+                    new GetPlayerCombinedInfoRequest()
+                    {
+                        InfoRequestParameters = new GetPlayerCombinedInfoRequestParams()
+                        {
+                            GetUserAccountInfo = true
+                        }
+                    },
+                    result =>
+                    {
+                        var loginResult = PlayFabAuth.LoginResult;
+
+                        loginResult.InfoResultPayload = result.InfoResultPayload;
+
+                        onComplete();
+                    },
+                    error =>
+                    {
+                        PlayFabErrorHandler?.Process(error);
+
+                        onFailure();
+                    });
+            }
+            catch (Exception exception)
+            {
+                ExceptionHandler?.Process(exception);
+
+                onFailure();
+            }
+        }
+
+        void IUser.SetName(string name, Action onComplete, Action onFailure)
         {
             try
             {
                 PlayFabClientAPI.UpdateUserTitleDisplayName(
                     new UpdateUserTitleDisplayNameRequest()
                     {
-                        DisplayName = userName
+                        DisplayName = name
                     },
                     result =>
                     {

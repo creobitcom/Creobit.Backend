@@ -112,11 +112,14 @@ void LoadProducts(Action onComplete, Action onFailure);
 Интерфейс пользователя.
 
 ```csharp
-// Имя пользователя.
-string UserName { get; }
+// Имя.
+string Name { get; }
 
-// Установить имя пользователя.
-void SetUserName(string userName, Action onComplete, Action onFailure);
+// Обновить.
+void Refresh(Action onComplete, Action onFailure);
+
+// Установить имя.
+void SetName(string name, Action onComplete, Action onFailure);
 ```
 
 ### IUserData

@@ -8,9 +8,18 @@ namespace Creobit.Backend
     {
         #region IUser
 
-        string IUser.UserName => SteamClient.Name;
+        string IUser.Name => SteamClient.Name;
 
-        void IUser.SetUserName(string userName, Action onComplete, Action onFailure)
+        void IUser.Refresh(Action onComplete, Action onFailure)
+        {
+            var exception = new NotSupportedException();
+
+            ExceptionHandler?.Process(exception);
+
+            onFailure();
+        }
+
+        void IUser.SetName(string name, Action onComplete, Action onFailure)
         {
             var exception = new NotSupportedException();
 
