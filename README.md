@@ -121,6 +121,9 @@ string Name { get; }
 // Обновить.
 void Refresh(Action onComplete, Action onFailure);
 
+// Установить Url аватара.
+void SetAvatarUrl(string avatarUrl, Action onComplete, Action onFailure);
+
 // Установить имя.
 void SetName(string name, Action onComplete, Action onFailure);
 ```
