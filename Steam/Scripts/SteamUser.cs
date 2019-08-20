@@ -8,6 +8,18 @@ namespace Creobit.Backend
     {
         #region IUser
 
+        string IUser.AvatarUrl
+        {
+            get
+            {
+                var exception = new NotSupportedException();
+
+                ExceptionHandler?.Process(exception);
+
+                return string.Empty;
+            }
+        }
+
         string IUser.Name => SteamClient.Name;
 
         void IUser.Refresh(Action onComplete, Action onFailure)

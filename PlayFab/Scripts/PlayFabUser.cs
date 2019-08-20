@@ -9,6 +9,8 @@ namespace Creobit.Backend
     {
         #region IUser
 
+        string IUser.AvatarUrl => TitleInfo.AvatarUrl;
+
         string IUser.Name => TitleInfo.DisplayName;
 
         void IUser.Refresh(Action onComplete, Action onFailure)

@@ -7,6 +7,8 @@ namespace Creobit.Backend
     {
         #region IUser
 
+        string IUser.AvatarUrl => PlayFabUser.AvatarUrl;
+
         string IUser.Name => string.IsNullOrWhiteSpace(PlayFabUser.Name) ? SteamUser.Name : PlayFabUser.Name;
 
         void IUser.Refresh(Action onComplete, Action onFailure) =>  PlayFabUser.Refresh(onComplete, onFailure);

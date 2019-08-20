@@ -112,6 +112,9 @@ void LoadProducts(Action onComplete, Action onFailure);
 Интерфейс пользователя.
 
 ```csharp
+// Url аватара.
+string AvatarUrl { get; }
+
 // Имя.
 string Name { get; }
 

@@ -8,6 +8,8 @@ namespace Creobit.Backend
     {
         #region IUser
 
+        string IUser.AvatarUrl => PlayGamesPlatform.Instance.GetUserImageUrl();
+
         string IUser.Name => PlayGamesPlatform.Instance.GetUserDisplayName();
 
         void IUser.Refresh(Action onComplete, Action onFailure)

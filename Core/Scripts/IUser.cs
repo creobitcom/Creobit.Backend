@@ -6,6 +6,11 @@ namespace Creobit.Backend
     {
         #region IUser
 
+        string AvatarUrl
+        {
+            get;
+        }
+
         string Name
         {
             get;
