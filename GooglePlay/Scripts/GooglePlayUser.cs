@@ -21,6 +21,15 @@ namespace Creobit.Backend
             onFailure();
         }
 
+        void IUser.SetAvatarUrl(string avatarUrl, Action onComplete, Action onFailure)
+        {
+            var exception = new NotSupportedException();
+
+            ExceptionHandler?.Process(exception);
+
+            onFailure();
+        }
+
         void IUser.SetName(string name, Action onComplete, Action onFailure)
         {
             var exception = new NotSupportedException();

@@ -48,6 +48,36 @@ namespace Creobit.Backend
             }
         }
 
+        void IUser.SetAvatarUrl(string avatarUrl, Action onComplete, Action onFailure)
+        {
+            try
+            {
+                PlayFabClientAPI.UpdateAvatarUrl(
+                    new UpdateAvatarUrlRequest()
+                    {
+                        ImageUrl = avatarUrl
+                    },
+                    result =>
+                    {
+                        TitleInfo.AvatarUrl = avatarUrl;
+
+                        onComplete();
+                    },
+                    error =>
+                    {
+                        PlayFabErrorHandler?.Process(error);
+
+                        onFailure();
+                    });
+            }
+            catch (Exception exception)
+            {
+                ExceptionHandler?.Process(exception);
+
+                onFailure();
+            }
+        }
+
         void IUser.SetName(string name, Action onComplete, Action onFailure)
         {
             try

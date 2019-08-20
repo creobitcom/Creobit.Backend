@@ -13,6 +13,8 @@ namespace Creobit.Backend
 
         void IUser.Refresh(Action onComplete, Action onFailure) => PlayFabUser.Refresh(onComplete, onFailure);
 
+        void IUser.SetAvatarUrl(string avatarUrl, Action onComplete, Action onFailure) => PlayFabUser.SetAvatarUrl(avatarUrl, onComplete, onFailure);
+
         void IUser.SetName(string name, Action onComplete, Action onFailure) => PlayFabUser.SetName(name, onComplete, onFailure);
 
         #endregion
