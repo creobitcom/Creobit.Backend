@@ -10,8 +10,8 @@
 var playFabAuth = new PlayFabAuth(titleId: "");
 var playFabLink = new PlayFabLink();
 
-var androidPlayFabAuth = new AndroidPlayFabAuth(playFabAuth: playFabAuth);
-var androidPlayFabLink = new AndroidPlayFabLink(playFabLink: playFabLink, androidPlayFabAuth: androidPlayFabAuth);
+var androidPlayFabAuth = new AndroidPlayFabAuth(playFabAuth);
+var androidPlayFabLink = new AndroidPlayFabLink(playFabLink, androidPlayFabAuth);
 ```
 
 # Creobit.Backend.AppStorePlayFab
@@ -38,7 +38,7 @@ var playFabStore = new PlayFabStore(catalogVersion: null, storeId: null)
     }
 };
 
-var appStorePlayFabStore = new AppStorePlayFabStore(playFabStore: playFabStore)
+var appStorePlayFabStore = new AppStorePlayFabStore(playFabStore)
 {
     ProductMap = new List<(string ProductId, ProductType ProductType)>
     {
@@ -112,11 +112,17 @@ void LoadProducts(Action onComplete, Action onFailure);
 Интерфейс пользователя.
 
 ```csharp
-// Имя пользователя.
-string UserName { get; }
+// Url аватара.
+string AvatarUrl { get; }
 
-// Установить имя пользователя.
-void SetUserName(string userName, Action onComplete, Action onFailure);
+// Имя.
+string Name { get; }
+
+// Обновить.
+void Refresh(Action onComplete, Action onFailure);
+
+// Установить имя.
+void SetName(string name, Action onComplete, Action onFailure);
 ```
 
 ### IUserData
@@ -173,8 +179,8 @@ TODO
 var playFabAuth = new PlayFabAuth(titleId: "");
 var playFabLink = new PlayFabLink();
 
-var customPlayFabAuth = new CustomPlayFabAuth(playFabAuth: playFabAuth, customId: "");
-var customPlayFabLink = new CustomPlayFabLink(playFabLink: playFabLink, customPlayFabAuth: customPlayFabAuth);
+var customPlayFabAuth = new CustomPlayFabAuth(playFabAuth, customId: "");
+var customPlayFabLink = new CustomPlayFabLink(playFabLink, customPlayFabAuth);
 ```
 
 # Creobit.Backend.GooglePlay
@@ -216,14 +222,14 @@ var playFabStore = new PlayFabStore(catalogVersion: null, storeId: null)
         ("AppKey", "PlayFabKey")
     }
 };
-var playFabUser = new PlayFabUser(playFabAuth: playFabAuth);
+var playFabUser = new PlayFabUser(playFabAuth);
 
 var googlePlayAuth = new GooglePlayAuth();
 var googlePlayUser = new GooglePlayUser();
 
-var googlePlayPlayFabAuth = new GooglePlayPlayFabAuth(playFabAuth: playFabAuth, googlePlayAuth: googlePlayAuth);
+var googlePlayPlayFabAuth = new GooglePlayPlayFabAuth(playFabAuth, googlePlayAuth);
 var googlePlayPlayFabLink = new GooglePlayPlayFabLink(playFabLink, googlePlayPlayFabAuth);
-var googlePlayPlayFabStore = new GooglePlayPlayFabStore(playFabStore: playFabStore, publicKey: "")
+var googlePlayPlayFabStore = new GooglePlayPlayFabStore(playFabStore, publicKey: "")
 {
     ProductMap = new List<(string ProductId, ProductType ProductType)>
     {
@@ -231,10 +237,10 @@ var googlePlayPlayFabStore = new GooglePlayPlayFabStore(playFabStore: playFabSto
         ("GooglePlayKey", ProductType.Consumable)
     }
 };
-var googlePlayPlayFabUser = new GooglePlayPlayFabUser(playFabUser: playFabUser, googlePlayUser: googlePlayUser);
+var googlePlayPlayFabUser = new GooglePlayPlayFabUser(playFabUser, googlePlayUser);
 ```
 
-**GooglePlayPlayFabWrapper.ProductMap** - содержит список продуктов *GooglePlay* (Ключ продукта / Тип продукта). Ключ продукта должен совпадать с идентификатором предмета *PlayFab* для возможности валидации.
+**GooglePlayPlayFabStore.ProductMap** - содержит список продуктов *GooglePlay* (Ключ продукта / Тип продукта). Ключ продукта должен совпадать с идентификатором предмета *PlayFab* для возможности валидации.
 
 # Creobit.Backend.IosPlayFab
 Модуль для работы с **PlayFab** посредством **iOS**.
@@ -248,8 +254,8 @@ var googlePlayPlayFabUser = new GooglePlayPlayFabUser(playFabUser: playFabUser, 
 var playFabAuth = new PlayFabAuth(titleId: "");
 var playFabLink = new PlayFabLink();
 
-var iosPlayFabAuth = new IosPlayFabAuth(playFabAuth: playFabAuth);
-var iosPlayFabLink = new IosPlayFabLink(playFabLink: playFabLink, iosPlayFabAuth: iosPlayFabAuth);
+var iosPlayFabAuth = new IosPlayFabAuth(playFabAuth);
+var iosPlayFabLink = new IosPlayFabLink(playFabLink, iosPlayFabAuth);
 ```
 
 # Creobit.Backend.PlayFab
@@ -278,7 +284,7 @@ var playFabStore = new PlayFabStore(catalogVersion: null, storeId: null)
         ("AppKey", "PlayFabKey")
     }
 };
-var playFabUser = new PlayFabUser(playFabAuth: playFabAuth);
+var playFabUser = new PlayFabUser(playFabAuth);
 var playFabUserData = new PlayFabUserData();
 ```
 
@@ -342,10 +348,10 @@ var playFabUser = new PlayFabUser(playFabAuth: playFabAuth);
 var steamAuth = new SteamAuth(appId: 0);
 var steamUser = new SteamUser();
 
-var steamPlayFabAuth = new SteamPlayFabAuth(playFabAuth: playFabAuth, steamAuth: steamAuth);
+var steamPlayFabAuth = new SteamPlayFabAuth(playFabAuth, steamAuth);
 var steamPlayFabLink = new SteamPlayFabLink(playFabLink, steamPlayFabAuth);
-var steamPlayFabStore = new SteamPlayFabStore(playFabStore: playFabStore);
-var steamPlayFabUser = new SteamPlayFabUser(playFabUser: playFabUser, steamUser: steamUser);
+var steamPlayFabStore = new SteamPlayFabStore(playFabStore);
+var steamPlayFabUser = new SteamPlayFabUser(playFabUser, steamUser);
 ```
 
 # Лизензия

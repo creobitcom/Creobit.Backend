@@ -6,12 +6,19 @@ namespace Creobit.Backend
     {
         #region IUser
 
-        string UserName
+        string AvatarUrl
         {
             get;
         }
 
-        void SetUserName(string userName, Action onComplete, Action onFailure);
+        string Name
+        {
+            get;
+        }
+
+        void Refresh(Action onComplete, Action onFailure);
+
+        void SetName(string name, Action onComplete, Action onFailure);
 
         #endregion
     }

@@ -8,9 +8,20 @@ namespace Creobit.Backend
     {
         #region IUser
 
-        string IUser.UserName => PlayGamesPlatform.Instance.GetUserDisplayName();
+        string IUser.AvatarUrl => PlayGamesPlatform.Instance.GetUserImageUrl();
 
-        void IUser.SetUserName(string userName, Action onComplete, Action onFailure)
+        string IUser.Name => PlayGamesPlatform.Instance.GetUserDisplayName();
+
+        void IUser.Refresh(Action onComplete, Action onFailure)
+        {
+            var exception = new NotSupportedException();
+
+            ExceptionHandler?.Process(exception);
+
+            onFailure();
+        }
+
+        void IUser.SetName(string name, Action onComplete, Action onFailure)
         {
             var exception = new NotSupportedException();
 

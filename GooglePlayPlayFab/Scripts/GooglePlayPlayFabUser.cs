@@ -7,9 +7,13 @@ namespace Creobit.Backend
     {
         #region IUser
 
-        string IUser.UserName => string.IsNullOrWhiteSpace(PlayFabUser.UserName) ? GooglePlayUser.UserName : PlayFabUser.UserName;
+        string IUser.AvatarUrl => string.IsNullOrWhiteSpace(PlayFabUser.AvatarUrl) ? GooglePlayUser.AvatarUrl : PlayFabUser.AvatarUrl;
 
-        void IUser.SetUserName(string userName, Action onComplete, Action onFailure) => PlayFabUser.SetUserName(userName, onComplete, onFailure);
+        string IUser.Name => string.IsNullOrWhiteSpace(PlayFabUser.Name) ? GooglePlayUser.Name : PlayFabUser.Name;
+
+        void IUser.Refresh(Action onComplete, Action onFailure) => PlayFabUser.Refresh(onComplete, onFailure);
+
+        void IUser.SetName(string name, Action onComplete, Action onFailure) => PlayFabUser.SetName(name, onComplete, onFailure);
 
         #endregion
         #region GooglePlayPlayFabUser
