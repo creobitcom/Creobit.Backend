@@ -109,6 +109,13 @@ namespace Creobit.Backend
         }
 
         #endregion
+        #region IPlayFabUser
+
+        string IPlayFabUser.Id => LoginResult.PlayFabId;
+
+        bool IPlayFabUser.IsNewlyCreated => LoginResult.NewlyCreated;
+
+        #endregion
         #region PlayFabUser
 
         private readonly IPlayFabAuth PlayFabAuth;
@@ -130,12 +137,13 @@ namespace Creobit.Backend
             set;
         } = Backend.PlayFabErrorHandler.Default;
 
+        private LoginResult LoginResult => PlayFabAuth.LoginResult;
+
         private UserTitleInfo TitleInfo
         {
             get
             {
-                var loginResult = PlayFabAuth.LoginResult;
-                var infoResultPayload = loginResult.InfoResultPayload;
+                var infoResultPayload = LoginResult.InfoResultPayload;
                 var accountInfo = infoResultPayload.AccountInfo;
 
                 return accountInfo.TitleInfo;
