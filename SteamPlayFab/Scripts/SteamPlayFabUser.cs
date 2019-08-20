@@ -18,6 +18,13 @@ namespace Creobit.Backend
         void IUser.SetName(string name, Action onComplete, Action onFailure) => PlayFabUser.SetName(name, onComplete, onFailure);
 
         #endregion
+        #region IPlayFabUser
+
+        string IPlayFabUser.Id => PlayFabUser.Id;
+
+        bool IPlayFabUser.IsNewlyCreated => PlayFabUser.IsNewlyCreated;
+
+        #endregion
         #region SteamPlayFabUser
 
         private readonly IPlayFabUser PlayFabUser;
