@@ -1,4 +1,4 @@
-﻿#if CREOBIT_BACKEND_GOOGLEPLAY && CREOBIT_BACKEND_PLAYFAB && UNITY_ANDROID
+#if CREOBIT_BACKEND_GOOGLEPLAY && CREOBIT_BACKEND_PLAYFAB && UNITY_ANDROID
 using System;
 
 namespace Creobit.Backend
@@ -22,7 +22,7 @@ namespace Creobit.Backend
 
         string IPlayFabUser.Id => PlayFabUser.Id;
 
-        bool IPlayFabUser.IsNewlyCreated => PlayFabUser.NewlyCreated;
+        bool IPlayFabUser.IsNewlyCreated => PlayFabUser.IsNewlyCreated;
 
         #endregion
         #region GooglePlayPlayFabUser
