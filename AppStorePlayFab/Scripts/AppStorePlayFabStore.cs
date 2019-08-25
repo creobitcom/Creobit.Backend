@@ -261,6 +261,7 @@ namespace Creobit.Backend
                 PlayFabClientAPI.ValidateIOSReceipt(
                     new ValidateIOSReceiptRequest()
                     {
+                        CatalogVersion = PlayFabStore.CatalogVersion,
                         CurrencyCode = metadata.isoCurrencyCode,
                         PurchasePrice = Convert.ToInt32(metadata.localizedPrice * 100m),
                         ReceiptData = receiptData

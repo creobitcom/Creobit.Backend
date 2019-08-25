@@ -249,6 +249,7 @@ namespace Creobit.Backend
                 PlayFabClientAPI.ValidateGooglePlayPurchase(
                     new ValidateGooglePlayPurchaseRequest()
                     {
+                        CatalogVersion = PlayFabStore.CatalogVersion,
                         CurrencyCode = metadata.isoCurrencyCode,
                         PurchasePrice = Convert.ToUInt32(metadata.localizedPrice * 100m),
                         ReceiptJson = json,
