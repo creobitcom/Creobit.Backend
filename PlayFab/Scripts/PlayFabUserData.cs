@@ -282,7 +282,7 @@ namespace Creobit.Backend
                 keys.Add(key);
             }
 
-            return new List<string>();
+            return keys;
         }
 
         #endregion
