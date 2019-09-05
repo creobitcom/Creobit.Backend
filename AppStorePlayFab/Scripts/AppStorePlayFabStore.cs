@@ -47,6 +47,7 @@ namespace Creobit.Backend
                 _storeListener.Initialized -= OnInitialized;
                 _storeListener.InitializeFailed -= OnInitializeFailed;
 
+                _appleExtensions = eventArgs.AppleExtensions;
                 _storeController = eventArgs.StoreController;
 
                 PlayFabStore.LoadProducts(
@@ -115,7 +116,7 @@ namespace Creobit.Backend
 
         private readonly IPlayFabStore PlayFabStore;
 
-        private IExtensionProvider _extensionProvider;
+        private IAppleExtensions _appleExtensions;
         private IStoreController _storeController;
         private StoreListener _storeListener;
 
@@ -207,6 +208,17 @@ namespace Creobit.Backend
             var itemId = PlayFabStore.GetItemId(product.Id);
             var virtualCurrency = PlayFabStore.GetVirtualCurrency(currencyId);
 
+            if (virtualCurrency == null)
+            {
+                var exception = new Exception($"The VirtualCurrency is not found for the CurrencyId \"{currencyId}\"!");
+
+                ExceptionHandler?.Process(exception);
+
+                onFailure();
+
+                return;
+            }
+
             if (virtualCurrency == "RM")
             {
                 InitiatePurchase(itemId,
@@ -253,8 +265,7 @@ namespace Creobit.Backend
         private void ValidateIOSReceipt(UProduct purchasedProduct, Action onComplete, Action onFailure)
         {
             var metadata = purchasedProduct.metadata;
-            var appleExtensions = _extensionProvider.GetExtension<IAppleExtensions>();
-            var receiptData = appleExtensions.GetTransactionReceiptForProduct(purchasedProduct);
+            var receiptData = _appleExtensions.GetTransactionReceiptForProduct(purchasedProduct);
 
             try
             {
@@ -337,12 +348,12 @@ namespace Creobit.Backend
         {
             #region InitializedEventArgs
 
-            public readonly IExtensionProvider ExtensionProvider;
+            public readonly IAppleExtensions AppleExtensions;
             public readonly IStoreController StoreController;
 
             public InitializedEventArgs(IStoreController controller, IExtensionProvider provider)
             {
-                ExtensionProvider = provider;
+                AppleExtensions = provider.GetExtension<IAppleExtensions>();
                 StoreController = controller;
             }
 

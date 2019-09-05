@@ -344,6 +344,17 @@ namespace Creobit.Backend
         {
             var virtualCurrency = this.GetVirtualCurrency(currencyId);
 
+            if (virtualCurrency == null)
+            {
+                var exception = new Exception($"The VirtualCurrency is not found for the CurrencyId \"{currencyId}\"!");
+
+                ExceptionHandler?.Process(exception);
+
+                onFailure();
+
+                return;
+            }
+
             if (virtualCurrency == "RM")
             {
                 var excetion = new NotSupportedException("Real Currency is not supported!");

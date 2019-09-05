@@ -10,7 +10,7 @@ namespace Creobit.Backend
 {
     public sealed class GooglePlayPlayFabStore : IPlayFabStore
     {
-        #region IStore
+#region IStore
 
         IEnumerable<IProduct> IStore.Products => PlayFabStore.Products;
 
@@ -90,8 +90,8 @@ namespace Creobit.Backend
             }
         }
 
-        #endregion
-        #region IPlayFabStore
+#endregion
+#region IPlayFabStore
 
         string IPlayFabStore.CatalogVersion => PlayFabStore.CatalogVersion;
 
@@ -101,8 +101,8 @@ namespace Creobit.Backend
 
         IEnumerable<(string ProductId, string ItemId)> IPlayFabStore.ProductMap => PlayFabStore.ProductMap;
 
-        #endregion
-        #region GooglePlayPlayFabStore
+#endregion
+#region GooglePlayPlayFabStore
 
         private readonly IPlayFabStore PlayFabStore;
         private readonly string PublicKey;
@@ -193,6 +193,17 @@ namespace Creobit.Backend
             var itemId = PlayFabStore.GetItemId(product.Id);
             var virtualCurrency = PlayFabStore.GetVirtualCurrency(currencyId);
 
+            if (virtualCurrency == null)
+            {
+                var exception = new Exception($"The VirtualCurrency is not found for the CurrencyId \"{currencyId}\"!");
+
+                ExceptionHandler?.Process(exception);
+
+                onFailure();
+
+                return;
+            }
+
             if (virtualCurrency == "RM")
             {
                 InitiatePurchase(itemId,
@@ -276,7 +287,7 @@ namespace Creobit.Backend
 
         private sealed class StoreListener : IStoreListener
         {
-            #region IStoreListener
+#region IStoreListener
 
             void IStoreListener.OnInitialized(IStoreController controller, IExtensionProvider provider)
             {
@@ -308,8 +319,8 @@ namespace Creobit.Backend
                 return PurchaseProcessingResult.Complete;
             }
 
-            #endregion
-            #region StoreListener
+#endregion
+#region StoreListener
 
             public event EventHandler<InitializedEventArgs> Initialized = delegate { };
 
@@ -319,12 +330,12 @@ namespace Creobit.Backend
 
             public event EventHandler<ProcessPurchaseEventArgs> ProcessPurchase = delegate { };
 
-            #endregion
+#endregion
         }
 
         private sealed class InitializedEventArgs : EventArgs
         {
-            #region InitializedEventArgs
+#region InitializedEventArgs
 
             public readonly IExtensionProvider ExtensionProvider;
             public readonly IStoreController StoreController;
@@ -335,12 +346,12 @@ namespace Creobit.Backend
                 StoreController = controller;
             }
 
-            #endregion
+#endregion
         }
 
         private sealed class InitializeFailedEventArgs : EventArgs
         {
-            #region InitializeFailedEventArgs
+#region InitializeFailedEventArgs
 
             public readonly InitializationFailureReason InitializationFailureReason;
 
@@ -349,12 +360,12 @@ namespace Creobit.Backend
                 InitializationFailureReason = reason;
             }
 
-            #endregion
+#endregion
         }
 
         private sealed class ProcessPurchaseEventArgs : EventArgs
         {
-            #region ProcessPurchaseEventArgs
+#region ProcessPurchaseEventArgs
 
             public readonly string ProductId;
             public readonly UProduct PurchasedProduct;
@@ -368,12 +379,12 @@ namespace Creobit.Backend
                 PurchasedProduct = purchasedProduct;
             }
 
-            #endregion
+#endregion
         }
 
         private sealed class PurchaseFailedEventArgs : EventArgs
         {
-            #region PurchaseFailedEventArgs
+#region PurchaseFailedEventArgs
 
             public readonly string ProductId;
             public readonly PurchaseFailureReason PurchaseFailureReason;
@@ -386,10 +397,10 @@ namespace Creobit.Backend
                 PurchaseFailureReason = reason;
             }
 
-            #endregion
+#endregion
         }
 
-        #endregion
+#endregion
     }
 }
 #endif
