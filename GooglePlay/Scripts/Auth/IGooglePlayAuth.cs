@@ -1,7 +1,7 @@
 ﻿#if CREOBIT_BACKEND_GOOGLEPLAY && UNITY_ANDROID
 using System;
 
-namespace Creobit.Backend
+namespace Creobit.Backend.Auth
 {
     public interface IGooglePlayAuth : IAuth
     {

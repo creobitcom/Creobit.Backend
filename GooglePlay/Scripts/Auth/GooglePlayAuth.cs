@@ -4,7 +4,7 @@ using GooglePlayGames.BasicApi;
 using System;
 using System.Threading.Tasks;
 
-namespace Creobit.Backend
+namespace Creobit.Backend.Auth
 {
     public sealed class GooglePlayAuth : IGooglePlayAuth
     {
@@ -50,7 +50,7 @@ namespace Creobit.Backend
                 {
                     var exception = new Exception(msgArg);
 
-                    ExceptionHandler?.Process(exception);
+                    ExceptionHandler.Process(exception);
 
                     onFailure();
                 }
@@ -67,7 +67,7 @@ namespace Creobit.Backend
             }
             catch (Exception exception)
             {
-                ExceptionHandler?.Process(exception);
+                ExceptionHandler.Process(exception);
 
                 onFailure();
             }
@@ -101,7 +101,7 @@ namespace Creobit.Backend
                 {
                     var exception = new Exception("GetAnotherServerAuthCode error!");
 
-                    ExceptionHandler?.Process(exception);
+                    ExceptionHandler.Process(exception);
 
                     onFailure();
                 }
@@ -117,6 +117,8 @@ namespace Creobit.Backend
 
         private const int MillisecondsDelay = 10;
 
+        private IExceptionHandler _exceptionHandler;
+
         public GooglePlayAuth()
         {
             var configuration = new PlayGamesClientConfiguration.Builder()
@@ -129,9 +131,9 @@ namespace Creobit.Backend
 
         public IExceptionHandler ExceptionHandler
         {
-            get;
-            set;
-        } = Backend.ExceptionHandler.Default;
+            get => _exceptionHandler ?? Backend.ExceptionHandler.Default;
+            set => _exceptionHandler = value;
+        }
 
         #endregion
     }

@@ -3,7 +3,7 @@ using PlayFab;
 using PlayFab.ClientModels;
 using System;
 
-namespace Creobit.Backend
+namespace Creobit.Backend.Auth
 {
     public sealed class PlayFabAuth : IPlayFabAuth
     {
@@ -15,7 +15,7 @@ namespace Creobit.Backend
         {
             var exception = new NotSupportedException();
 
-            ExceptionHandler?.Process(exception);
+            ExceptionHandler.Process(exception);
 
             onFailure();
         }
@@ -48,6 +48,8 @@ namespace Creobit.Backend
 
         private readonly string TitleId;
 
+        private IExceptionHandler _exceptionHandler;
+
         public PlayFabAuth(string titleId)
         {
             TitleId = titleId;
@@ -55,15 +57,9 @@ namespace Creobit.Backend
 
         public IExceptionHandler ExceptionHandler
         {
-            get;
-            set;
-        } = Backend.ExceptionHandler.Default;
-
-        public IPlayFabErrorHandler PlayFabErrorHandler
-        {
-            get;
-            set;
-        } = Backend.PlayFabErrorHandler.Default;
+            get => _exceptionHandler ?? Backend.ExceptionHandler.Default;
+            set => _exceptionHandler = value;
+        }
 
         #endregion
     }

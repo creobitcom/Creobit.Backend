@@ -4,7 +4,7 @@ using PlayFab.ClientModels;
 using System;
 using UnityEngine;
 
-namespace Creobit.Backend
+namespace Creobit.Backend.Auth
 {
     public sealed class IosPlayFabAuth : IIosPlayFabAuth
     {
@@ -39,14 +39,14 @@ namespace Creobit.Backend
                     },
                     error =>
                     {
-                        PlayFabErrorHandler?.Process(error);
+                        PlayFabErrorHandler.Process(error);
 
                         onFailure();
                     });
             }
             catch (Exception exception)
             {
-                ExceptionHandler?.Process(exception);
+                ExceptionHandler.Process(exception);
 
                 onFailure();
             }
@@ -70,6 +70,9 @@ namespace Creobit.Backend
 
         private readonly IPlayFabAuth PlayFabAuth;
 
+        private IExceptionHandler _exceptionHandler;
+        private IPlayFabErrorHandler _playFabErrorHandler;
+
         public IosPlayFabAuth(IPlayFabAuth playFabAuth)
         {
             PlayFabAuth = playFabAuth;
@@ -77,15 +80,15 @@ namespace Creobit.Backend
 
         public IExceptionHandler ExceptionHandler
         {
-            get;
-            set;
-        } = Backend.ExceptionHandler.Default;
+            get => _exceptionHandler ?? Backend.ExceptionHandler.Default;
+            set => _exceptionHandler = value;
+        }
 
         public IPlayFabErrorHandler PlayFabErrorHandler
         {
-            get;
-            set;
-        } = Backend.PlayFabErrorHandler.Default;
+            get => _playFabErrorHandler ?? Backend.PlayFabErrorHandler.Default;
+            set => _playFabErrorHandler = value;
+        }
 
         #endregion
     }

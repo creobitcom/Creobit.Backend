@@ -1,4 +1,5 @@
 ﻿#if CREOBIT_BACKEND_ANDROID && CREOBIT_BACKEND_PLAYFAB && UNITY_ANDROID
+using Creobit.Backend.Auth;
 using PlayFab;
 using PlayFab.ClientModels;
 using System;

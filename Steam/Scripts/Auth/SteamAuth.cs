@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
-namespace Creobit.Backend
+namespace Creobit.Backend.Auth
 {
     public sealed class SteamAuth : ISteamAuth
     {
@@ -21,7 +21,7 @@ namespace Creobit.Backend
                 {
                     var exception = new Exception("The Steam is not started!");
 
-                    ExceptionHandler?.Process(exception);
+                    ExceptionHandler.Process(exception);
 
                     onFailure();
                 }
@@ -41,7 +41,7 @@ namespace Creobit.Backend
             }
             catch (Exception exception)
             {
-                ExceptionHandler?.Process(exception);
+                ExceptionHandler.Process(exception);
 
                 onFailure();
             }
@@ -58,7 +58,7 @@ namespace Creobit.Backend
             }
             catch (Exception exception)
             {
-                ExceptionHandler?.Process(exception);
+                ExceptionHandler.Process(exception);
 
                 onFailure();
             }
@@ -101,6 +101,8 @@ namespace Creobit.Backend
         private readonly uint AppId;
         private readonly Dictionary<string, AuthTicket> AuthTickets = new Dictionary<string, AuthTicket>();
 
+        private IExceptionHandler _exceptionHandler;
+
         public SteamAuth(uint appId)
         {
             AppId = appId;
@@ -114,9 +116,9 @@ namespace Creobit.Backend
 
         public IExceptionHandler ExceptionHandler
         {
-            get;
-            set;
-        } = Backend.ExceptionHandler.Default;
+            get => _exceptionHandler ?? Backend.ExceptionHandler.Default;
+            set => _exceptionHandler = value;
+        }
 
         private void DestroyAuthTickets()
         {

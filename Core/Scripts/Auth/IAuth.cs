@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Creobit.Backend
+namespace Creobit.Backend.Auth
 {
     public interface IAuth
     {

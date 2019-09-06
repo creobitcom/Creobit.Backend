@@ -1,4 +1,5 @@
 ﻿#if CREOBIT_BACKEND_PLAYFAB
+using Creobit.Backend.Auth;
 using PlayFab;
 using PlayFab.ClientModels;
 using System;

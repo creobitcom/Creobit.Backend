@@ -1,7 +1,7 @@
 ﻿#if CREOBIT_BACKEND_PLAYFAB
 using PlayFab.ClientModels;
 
-namespace Creobit.Backend
+namespace Creobit.Backend.Auth
 {
     public interface IPlayFabAuth : IAuth
     {
