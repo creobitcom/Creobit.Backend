@@ -1,19 +1,19 @@
-﻿#if CREOBIT_BACKEND_PLAYFAB && CREOBIT_BACKEND_STEAM && UNITY_STANDALONE
+﻿#if CREOBIT_BACKEND_GOOGLEPLAY && CREOBIT_BACKEND_PLAYFAB && UNITY_ANDROID
 using Creobit.Backend.Auth;
 using PlayFab;
 using PlayFab.ClientModels;
 using System;
 
-namespace Creobit.Backend
+namespace Creobit.Backend.Link
 {
-    public sealed class SteamPlayFabLink : IPlayFabLink
+    public sealed class GooglePlayPlayFabLink : IPlayFabLink
     {
         #region ILink
 
         void ILink.Link(string linkKey, Action onComplete, Action onFailure)
         {
             var resultException = default(Exception);
-            var sourceLoginResult = SteamPlayFabAuth.LoginResult;
+            var sourceLoginResult = GooglePlayPlayFabAuth.LoginResult;
             var targetLoginResult = default(LoginResult);
 
             LoginWithCustomID();
@@ -31,25 +31,25 @@ namespace Creobit.Backend
                             {
                                 GetUserAccountInfo = true
                             },
-                            TitleId = SteamPlayFabAuth.TitleId
+                            TitleId = GooglePlayPlayFabAuth.TitleId
                         },
                         result =>
                         {
                             targetLoginResult = result;
-                            SteamPlayFabAuth.LoginResult = result;
+                            GooglePlayPlayFabAuth.LoginResult = result;
 
                             UnlinkCustomID();
                         },
                         error =>
                         {
-                            PlayFabErrorHandler?.Process(error);
+                            PlayFabErrorHandler.Process(error);
 
                             onFailure();
                         });
                 }
                 catch (Exception exception)
                 {
-                    ExceptionHandler?.Process(exception);
+                    ExceptionHandler.Process(exception);
 
                     onFailure();
                 }
@@ -66,36 +66,36 @@ namespace Creobit.Backend
                         },
                         result =>
                         {
-                            CheckSteamId();
+                            CheckGoogleId();
                         },
                         error =>
                         {
-                            PlayFabErrorHandler?.Process(error);
+                            PlayFabErrorHandler.Process(error);
 
                             onFailure();
                         });
                 }
                 catch (Exception exception)
                 {
-                    ExceptionHandler?.Process(exception);
+                    ExceptionHandler.Process(exception);
 
                     onFailure();
                 }
             }
 
-            void CheckSteamId()
+            void CheckGoogleId()
             {
-                var targetSteamId = GetSteamId(targetLoginResult);
+                var targetGoogleId = GetGoogleId(targetLoginResult);
 
-                if (targetSteamId == null)
+                if (targetGoogleId == null)
                 {
-                    LinkSteamAccount();
+                    LinkGoogleAccount();
                 }
                 else
                 {
-                    var sourceSteamId = GetSteamId(sourceLoginResult);
+                    var sourceGoogleId = GetGoogleId(sourceLoginResult);
 
-                    resultException = sourceSteamId == targetSteamId
+                    resultException = sourceGoogleId == targetGoogleId
                         ? new Exception("The source account already linked to the target account!")
                         : new Exception("The target account already has the linked account!");
 
@@ -103,44 +103,43 @@ namespace Creobit.Backend
                 }
             }
 
-            string GetSteamId(LoginResult loginResult)
+            string GetGoogleId(LoginResult loginResult)
             {
                 var infoResultPayload = loginResult?.InfoResultPayload;
                 var accountInfo = infoResultPayload?.AccountInfo;
-                var steamId = accountInfo?.SteamInfo;
+                var googleInfo = accountInfo?.GoogleInfo;
 
-                return steamId?.SteamId;
+                return googleInfo?.GoogleId;
             }
 
-            void LinkSteamAccount()
+            void LinkGoogleAccount()
             {
                 try
                 {
-                    var authSessionTicket = SteamPlayFabAuth.CreateAuthSessionTicket();
-
-                    PlayFabClientAPI.LinkSteamAccount(
-                        new LinkSteamAccountRequest()
+                    GooglePlayPlayFabAuth.GetServerAuthCode(
+                        serverAuthCode =>
                         {
-                            ForceLink = true,
-                            SteamTicket = authSessionTicket
-                        },
-                        result =>
-                        {
-                            SteamPlayFabAuth.DestroyAuthSessionTicket(authSessionTicket);
+                            PlayFabClientAPI.LinkGoogleAccount(
+                                new LinkGoogleAccountRequest()
+                                {
+                                    ForceLink = true,
+                                    ServerAuthCode = serverAuthCode
+                                },
+                                result =>
+                                {
+                                    onComplete();
+                                },
+                                error =>
+                                {
+                                    PlayFabErrorHandler.Process(error);
 
-                            onComplete();
-                        },
-                        error =>
-                        {
-                            SteamPlayFabAuth.DestroyAuthSessionTicket(authSessionTicket);
-                            PlayFabErrorHandler?.Process(error);
-
-                            onFailure();
-                        });
+                                    onFailure();
+                                });
+                        }, onFailure);
                 }
                 catch (Exception exception)
                 {
-                    ExceptionHandler?.Process(exception);
+                    ExceptionHandler.Process(exception);
 
                     onFailure();
                 }
@@ -152,18 +151,18 @@ namespace Creobit.Backend
 
                 void Logout()
                 {
-                    SteamPlayFabAuth.Logout(Login, ProcessException);
+                    GooglePlayPlayFabAuth.Logout(Login, ProcessException);
                 }
 
                 void Login()
                 {
-                    SteamPlayFabAuth.Login(ProcessException, ProcessException);
+                    GooglePlayPlayFabAuth.Login(ProcessException, ProcessException);
                 }
             }
 
             void ProcessException()
             {
-                ExceptionHandler?.Process(resultException);
+                ExceptionHandler.Process(resultException);
 
                 onFailure();
             }
@@ -172,28 +171,31 @@ namespace Creobit.Backend
         void ILink.RequestLinkKey(int linkKeyLenght, Action<string> onComplete, Action onFailure) => PlayFabLink.RequestLinkKey(linkKeyLenght, onComplete, onFailure);
 
         #endregion
-        #region SteamPlayFabLink
+        #region GooglePlayPlayFabLink
 
         private readonly IPlayFabLink PlayFabLink;
-        private readonly ISteamPlayFabAuth SteamPlayFabAuth;
+        private readonly IGooglePlayPlayFabAuth GooglePlayPlayFabAuth;
 
-        public SteamPlayFabLink(IPlayFabLink playFabLink, ISteamPlayFabAuth steamPlayFabAuth)
+        private IExceptionHandler _exceptionHandler;
+        private IPlayFabErrorHandler _playFabErrorHandler;
+
+        public GooglePlayPlayFabLink(IPlayFabLink playFabLink, IGooglePlayPlayFabAuth googlePlayPlayFabAuth)
         {
             PlayFabLink = playFabLink;
-            SteamPlayFabAuth = steamPlayFabAuth;
+            GooglePlayPlayFabAuth = googlePlayPlayFabAuth;
         }
 
         public IExceptionHandler ExceptionHandler
         {
-            get;
-            set;
-        } = Backend.ExceptionHandler.Default;
+            get => _exceptionHandler ?? Backend.ExceptionHandler.Default;
+            set => _exceptionHandler = value;
+        }
 
         public IPlayFabErrorHandler PlayFabErrorHandler
         {
-            get;
-            set;
-        } = Backend.PlayFabErrorHandler.Default;
+            get => _playFabErrorHandler ?? Backend.PlayFabErrorHandler.Default;
+            set => _playFabErrorHandler = value;
+        }
 
         #endregion
     }

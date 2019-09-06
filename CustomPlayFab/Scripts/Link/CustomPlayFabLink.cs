@@ -4,7 +4,7 @@ using PlayFab;
 using PlayFab.ClientModels;
 using System;
 
-namespace Creobit.Backend
+namespace Creobit.Backend.Link
 {
     public sealed class CustomPlayFabLink : IPlayFabLink
     {
@@ -42,14 +42,14 @@ namespace Creobit.Backend
                         },
                         error =>
                         {
-                            PlayFabErrorHandler?.Process(error);
+                            PlayFabErrorHandler.Process(error);
 
                             onFailure();
                         });
                 }
                 catch (Exception exception)
                 {
-                    ExceptionHandler?.Process(exception);
+                    ExceptionHandler.Process(exception);
 
                     onFailure();
                 }
@@ -70,14 +70,14 @@ namespace Creobit.Backend
                         },
                         error =>
                         {
-                            PlayFabErrorHandler?.Process(error);
+                            PlayFabErrorHandler.Process(error);
 
                             onFailure();
                         });
                 }
                 catch (Exception exception)
                 {
-                    ExceptionHandler?.Process(exception);
+                    ExceptionHandler.Process(exception);
 
                     onFailure();
                 }
@@ -130,14 +130,14 @@ namespace Creobit.Backend
                         },
                         error =>
                         {
-                            PlayFabErrorHandler?.Process(error);
+                            PlayFabErrorHandler.Process(error);
 
                             onFailure();
                         });
                 }
                 catch (Exception exception)
                 {
-                    ExceptionHandler?.Process(exception);
+                    ExceptionHandler.Process(exception);
 
                     onFailure();
                 }
@@ -160,7 +160,7 @@ namespace Creobit.Backend
 
             void ProcessException()
             {
-                ExceptionHandler?.Process(resultException);
+                ExceptionHandler.Process(resultException);
 
                 onFailure();
             }
@@ -174,6 +174,9 @@ namespace Creobit.Backend
         private readonly IPlayFabLink PlayFabLink;
         private readonly ICustomPlayFabAuth CustomPlayFabAuth;
 
+        private IExceptionHandler _exceptionHandler;
+        private IPlayFabErrorHandler _playFabErrorHandler;
+
         public CustomPlayFabLink(IPlayFabLink playFabLink, ICustomPlayFabAuth customPlayFabAuth)
         {
             PlayFabLink = playFabLink;
@@ -182,15 +185,15 @@ namespace Creobit.Backend
 
         public IExceptionHandler ExceptionHandler
         {
-            get;
-            set;
-        } = Backend.ExceptionHandler.Default;
+            get => _exceptionHandler ?? Backend.ExceptionHandler.Default;
+            set => _exceptionHandler = value;
+        }
 
         public IPlayFabErrorHandler PlayFabErrorHandler
         {
-            get;
-            set;
-        } = Backend.PlayFabErrorHandler.Default;
+            get => _playFabErrorHandler ?? Backend.PlayFabErrorHandler.Default;
+            set => _playFabErrorHandler = value;
+        }
 
         #endregion
     }

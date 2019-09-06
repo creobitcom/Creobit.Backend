@@ -4,7 +4,7 @@ using PlayFab.ClientModels;
 using System;
 using System.Text;
 
-namespace Creobit.Backend
+namespace Creobit.Backend.Link
 {
     public sealed class PlayFabLink : IPlayFabLink
     {
@@ -14,7 +14,7 @@ namespace Creobit.Backend
         {
             var exception = new NotSupportedException();
 
-            ExceptionHandler?.Process(exception);
+            ExceptionHandler.Process(exception);
 
             onFailure();
         }
@@ -36,14 +36,14 @@ namespace Creobit.Backend
                     },
                     error =>
                     {
-                        PlayFabErrorHandler?.Process(error);
+                        PlayFabErrorHandler.Process(error);
 
                         onFailure();
                     });
             }
             catch (Exception exception)
             {
-                ExceptionHandler?.Process(exception);
+                ExceptionHandler.Process(exception);
 
                 onFailure();
             }
@@ -68,17 +68,20 @@ namespace Creobit.Backend
         #endregion
         #region PlayFabLink
 
+        private IExceptionHandler _exceptionHandler;
+        private IPlayFabErrorHandler _playFabErrorHandler;
+
         public IExceptionHandler ExceptionHandler
         {
-            get;
-            set;
-        } = Backend.ExceptionHandler.Default;
+            get => _exceptionHandler ?? Backend.ExceptionHandler.Default;
+            set => _exceptionHandler = value;
+        }
 
         public IPlayFabErrorHandler PlayFabErrorHandler
         {
-            get;
-            set;
-        } = Backend.PlayFabErrorHandler.Default;
+            get => _playFabErrorHandler ?? Backend.PlayFabErrorHandler.Default;
+            set => _playFabErrorHandler = value;
+        }
 
         #endregion
     }
