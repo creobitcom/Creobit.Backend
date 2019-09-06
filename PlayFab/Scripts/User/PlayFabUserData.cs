@@ -118,17 +118,20 @@ namespace Creobit.Backend.User
         private readonly Dictionary<Type, List<Accessor>> Accessors = new Dictionary<Type, List<Accessor>>();
         private readonly HashSet<MethodInfo> MethodInfos = new HashSet<MethodInfo>();
 
+        private IExceptionHandler _exceptionHandler;
+        private IPlayFabErrorHandler _playFabErrorHandler;
+
         public IExceptionHandler ExceptionHandler
         {
-            get;
-            set;
-        } = Backend.ExceptionHandler.Default;
+            get => _exceptionHandler ?? Backend.ExceptionHandler.Default;
+            set => _exceptionHandler = value;
+        }
 
         public IPlayFabErrorHandler PlayFabErrorHandler
         {
-            get;
-            set;
-        } = Backend.PlayFabErrorHandler.Default;
+            get => _playFabErrorHandler ?? Backend.PlayFabErrorHandler.Default;
+            set => _playFabErrorHandler = value;
+        }
 
         private List<Accessor> CreateAccessors(Type type)
         {

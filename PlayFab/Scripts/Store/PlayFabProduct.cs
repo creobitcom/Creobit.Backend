@@ -3,7 +3,7 @@ using PlayFab.ClientModels;
 using System;
 using System.Collections.Generic;
 
-namespace Creobit.Backend
+namespace Creobit.Backend.Store
 {
     public sealed class PlayFabProduct : IProduct
     {

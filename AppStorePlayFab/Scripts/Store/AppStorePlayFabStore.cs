@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using UnityEngine.Purchasing;
 using UProduct = UnityEngine.Purchasing.Product;
 
-namespace Creobit.Backend
+namespace Creobit.Backend.Store
 {
     public sealed class AppStorePlayFabStore : IPlayFabStore
     {
@@ -120,6 +120,9 @@ namespace Creobit.Backend
         private IStoreController _storeController;
         private StoreListener _storeListener;
 
+        private IExceptionHandler _exceptionHandler;
+        private IPlayFabErrorHandler _playFabErrorHandler;
+
         public AppStorePlayFabStore(IPlayFabStore playFabStore)
         {
             PlayFabStore = playFabStore;
@@ -127,15 +130,15 @@ namespace Creobit.Backend
 
         public IExceptionHandler ExceptionHandler
         {
-            get;
-            set;
-        } = Backend.ExceptionHandler.Default;
+            get => _exceptionHandler ?? Backend.ExceptionHandler.Default;
+            set => _exceptionHandler = value;
+        }
 
         public IPlayFabErrorHandler PlayFabErrorHandler
         {
-            get;
-            set;
-        } = Backend.PlayFabErrorHandler.Default;
+            get => _playFabErrorHandler ?? Backend.PlayFabErrorHandler.Default;
+            set => _playFabErrorHandler = value;
+        }
 
         // ProductId - AppStore
         public IEnumerable<(string ProductId, ProductType ProductType)> ProductMap

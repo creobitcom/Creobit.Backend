@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace Creobit.Backend
+namespace Creobit.Backend.Store
 {
     public interface IStore
     {

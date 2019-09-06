@@ -5,7 +5,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Creobit.Backend
+namespace Creobit.Backend.Store
 {
     public sealed class PlayFabStore : IPlayFabStore
     {
@@ -142,6 +142,9 @@ namespace Creobit.Backend
         private GetCatalogItemsResult _getCatalogItemsResult;
         private GetStoreItemsResult _getStoreItemsResult;
 
+        private IExceptionHandler _exceptionHandler;
+        private IPlayFabErrorHandler _playFabErrorHandler;
+
         public PlayFabStore(string catalogVersion, string storeId)
         {
             CatalogVersion = string.IsNullOrWhiteSpace(catalogVersion) ? null : catalogVersion;
@@ -150,15 +153,15 @@ namespace Creobit.Backend
 
         public IExceptionHandler ExceptionHandler
         {
-            get;
-            set;
-        } = Backend.ExceptionHandler.Default;
+            get => _exceptionHandler ?? Backend.ExceptionHandler.Default;
+            set => _exceptionHandler = value;
+        }
 
         public IPlayFabErrorHandler PlayFabErrorHandler
         {
-            get;
-            set;
-        } = Backend.PlayFabErrorHandler.Default;
+            get => _playFabErrorHandler ?? Backend.PlayFabErrorHandler.Default;
+            set => _playFabErrorHandler = value;
+        }
 
         public IEnumerable<(string CurrencyId, string VirtualCurrency)> CurrencyMap
         {

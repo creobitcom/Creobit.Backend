@@ -6,11 +6,11 @@ using System.Collections.Generic;
 using UnityEngine.Purchasing;
 using UProduct = UnityEngine.Purchasing.Product;
 
-namespace Creobit.Backend
+namespace Creobit.Backend.Store
 {
     public sealed class GooglePlayPlayFabStore : IPlayFabStore
     {
-#region IStore
+        #region IStore
 
         IEnumerable<IProduct> IStore.Products => PlayFabStore.Products;
 
@@ -90,8 +90,8 @@ namespace Creobit.Backend
             }
         }
 
-#endregion
-#region IPlayFabStore
+        #endregion
+        #region IPlayFabStore
 
         string IPlayFabStore.CatalogVersion => PlayFabStore.CatalogVersion;
 
@@ -101,14 +101,17 @@ namespace Creobit.Backend
 
         IEnumerable<(string ProductId, string ItemId)> IPlayFabStore.ProductMap => PlayFabStore.ProductMap;
 
-#endregion
-#region GooglePlayPlayFabStore
+        #endregion
+        #region GooglePlayPlayFabStore
 
         private readonly IPlayFabStore PlayFabStore;
         private readonly string PublicKey;
 
         private IStoreController _storeController;
         private StoreListener _storeListener;
+
+        private IExceptionHandler _exceptionHandler;
+        private IPlayFabErrorHandler _playFabErrorHandler;
 
         public GooglePlayPlayFabStore(IPlayFabStore playFabStore, string publicKey)
         {
@@ -118,15 +121,15 @@ namespace Creobit.Backend
 
         public IExceptionHandler ExceptionHandler
         {
-            get;
-            set;
-        } = Backend.ExceptionHandler.Default;
+            get => _exceptionHandler ?? Backend.ExceptionHandler.Default;
+            set => _exceptionHandler = value;
+        }
 
         public IPlayFabErrorHandler PlayFabErrorHandler
         {
-            get;
-            set;
-        } = Backend.PlayFabErrorHandler.Default;
+            get => _playFabErrorHandler ?? Backend.PlayFabErrorHandler.Default;
+            set => _playFabErrorHandler = value;
+        }
 
         // ProductId - GooglePlay
         public IEnumerable<(string ProductId, ProductType ProductType)> ProductMap
@@ -287,7 +290,7 @@ namespace Creobit.Backend
 
         private sealed class StoreListener : IStoreListener
         {
-#region IStoreListener
+            #region IStoreListener
 
             void IStoreListener.OnInitialized(IStoreController controller, IExtensionProvider provider)
             {
@@ -319,8 +322,8 @@ namespace Creobit.Backend
                 return PurchaseProcessingResult.Complete;
             }
 
-#endregion
-#region StoreListener
+            #endregion
+            #region StoreListener
 
             public event EventHandler<InitializedEventArgs> Initialized = delegate { };
 
@@ -330,12 +333,12 @@ namespace Creobit.Backend
 
             public event EventHandler<ProcessPurchaseEventArgs> ProcessPurchase = delegate { };
 
-#endregion
+            #endregion
         }
 
         private sealed class InitializedEventArgs : EventArgs
         {
-#region InitializedEventArgs
+            #region InitializedEventArgs
 
             public readonly IExtensionProvider ExtensionProvider;
             public readonly IStoreController StoreController;
@@ -346,12 +349,12 @@ namespace Creobit.Backend
                 StoreController = controller;
             }
 
-#endregion
+            #endregion
         }
 
         private sealed class InitializeFailedEventArgs : EventArgs
         {
-#region InitializeFailedEventArgs
+            #region InitializeFailedEventArgs
 
             public readonly InitializationFailureReason InitializationFailureReason;
 
@@ -360,12 +363,12 @@ namespace Creobit.Backend
                 InitializationFailureReason = reason;
             }
 
-#endregion
+            #endregion
         }
 
         private sealed class ProcessPurchaseEventArgs : EventArgs
         {
-#region ProcessPurchaseEventArgs
+            #region ProcessPurchaseEventArgs
 
             public readonly string ProductId;
             public readonly UProduct PurchasedProduct;
@@ -379,12 +382,12 @@ namespace Creobit.Backend
                 PurchasedProduct = purchasedProduct;
             }
 
-#endregion
+            #endregion
         }
 
         private sealed class PurchaseFailedEventArgs : EventArgs
         {
-#region PurchaseFailedEventArgs
+            #region PurchaseFailedEventArgs
 
             public readonly string ProductId;
             public readonly PurchaseFailureReason PurchaseFailureReason;
@@ -397,10 +400,10 @@ namespace Creobit.Backend
                 PurchaseFailureReason = reason;
             }
 
-#endregion
+            #endregion
         }
 
-#endregion
+        #endregion
     }
 }
 #endif

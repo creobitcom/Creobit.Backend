@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Creobit.Backend
+namespace Creobit.Backend.Store
 {
     public sealed class SteamPlayFabStore : IPlayFabStore
     {
@@ -49,6 +49,9 @@ namespace Creobit.Backend
 
         private readonly IPlayFabStore PlayFabStore;
 
+        private IExceptionHandler _exceptionHandler;
+        private IPlayFabErrorHandler _playFabErrorHandler;
+
         public SteamPlayFabStore(IPlayFabStore playFabStore)
         {
             PlayFabStore = playFabStore;
@@ -56,15 +59,15 @@ namespace Creobit.Backend
 
         public IExceptionHandler ExceptionHandler
         {
-            get;
-            set;
-        } = Backend.ExceptionHandler.Default;
+            get => _exceptionHandler ?? Backend.ExceptionHandler.Default;
+            set => _exceptionHandler = value;
+        }
 
         public IPlayFabErrorHandler PlayFabErrorHandler
         {
-            get;
-            set;
-        } = Backend.PlayFabErrorHandler.Default;
+            get => _playFabErrorHandler ?? Backend.PlayFabErrorHandler.Default;
+            set => _playFabErrorHandler = value;
+        }
 
         private void Purchase(IProduct product, string currencyId, Action onComplete, Action onFailure)
         {
