@@ -2,7 +2,7 @@
 using Steamworks;
 using System;
 
-namespace Creobit.Backend
+namespace Creobit.Backend.User
 {
     public sealed class SteamUser : ISteamUser
     {
@@ -52,11 +52,13 @@ namespace Creobit.Backend
         #endregion
         #region SteamUser
 
+        private IExceptionHandler _exceptionHandler;
+
         public IExceptionHandler ExceptionHandler
         {
-            get;
-            set;
-        } = Backend.ExceptionHandler.Default;
+            get => _exceptionHandler ?? Backend.ExceptionHandler.Default;
+            set => _exceptionHandler = value;
+        }
 
         #endregion
     }

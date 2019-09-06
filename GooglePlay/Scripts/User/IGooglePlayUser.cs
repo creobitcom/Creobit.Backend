@@ -1,5 +1,5 @@
 ﻿#if CREOBIT_BACKEND_GOOGLEPLAY && UNITY_ANDROID
-namespace Creobit.Backend
+namespace Creobit.Backend.User
 {
     public interface IGooglePlayUser : IUser
     {

@@ -1,7 +1,7 @@
 #if CREOBIT_BACKEND_GOOGLEPLAY && CREOBIT_BACKEND_PLAYFAB && UNITY_ANDROID
 using System;
 
-namespace Creobit.Backend
+namespace Creobit.Backend.User
 {
     public sealed class GooglePlayPlayFabUser : IPlayFabUser, IGooglePlayUser
     {

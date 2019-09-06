@@ -4,7 +4,7 @@ using PlayFab;
 using PlayFab.ClientModels;
 using System;
 
-namespace Creobit.Backend
+namespace Creobit.Backend.User
 {
     public sealed class PlayFabUser : IPlayFabUser
     {
@@ -121,6 +121,9 @@ namespace Creobit.Backend
 
         private readonly IPlayFabAuth PlayFabAuth;
 
+        private IExceptionHandler _exceptionHandler;
+        private IPlayFabErrorHandler _playFabErrorHandler;
+
         public PlayFabUser(IPlayFabAuth playFabAuth)
         {
             PlayFabAuth = playFabAuth;
@@ -128,15 +131,15 @@ namespace Creobit.Backend
 
         public IExceptionHandler ExceptionHandler
         {
-            get;
-            set;
-        } = Backend.ExceptionHandler.Default;
+            get => _exceptionHandler ?? Backend.ExceptionHandler.Default;
+            set => _exceptionHandler = value;
+        }
 
         public IPlayFabErrorHandler PlayFabErrorHandler
         {
-            get;
-            set;
-        } = Backend.PlayFabErrorHandler.Default;
+            get => _playFabErrorHandler ?? Backend.PlayFabErrorHandler.Default;
+            set => _playFabErrorHandler = value;
+        }
 
         private LoginResult LoginResult => PlayFabAuth.LoginResult;
 

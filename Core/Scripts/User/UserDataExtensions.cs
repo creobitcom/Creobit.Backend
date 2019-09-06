@@ -1,20 +1,26 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Creobit.Backend
+namespace Creobit.Backend.User
 {
-    public static class UserExtensions
+    public static class UserDataExtensions
     {
-        #region UserExtensions
+        #region UserDataExtensions
 
         private const int MillisecondsDelay = 10;
 
-        public static async Task RefreshAsync(this IUser self)
+        public static async Task<T> ReadAsync<T>(this IUserData self)
+            where T : class, new()
         {
+            var valueResult = default(T);
             var invokeResult = default(bool?);
 
-            self.Refresh(
-                () => invokeResult = true,
+            self.Read<T>(
+                data =>
+                {
+                    valueResult = data;
+                    invokeResult = true;
+                },
                 () => invokeResult = false);
 
             while (!invokeResult.HasValue)
@@ -26,32 +32,15 @@ namespace Creobit.Backend
             {
                 throw new InvalidOperationException();
             }
+
+            return valueResult;
         }
 
-        public static async Task SetAvatarUrlAsync(this IUser self, string avatarUrl)
+        public static async Task WriteAsync(this IUserData self, object data)
         {
             var invokeResult = default(bool?);
 
-            self.SetAvatarUrl(avatarUrl,
-                () => invokeResult = true,
-                () => invokeResult = false);
-
-            while (!invokeResult.HasValue)
-            {
-                await Task.Delay(MillisecondsDelay);
-            }
-
-            if (!invokeResult.Value)
-            {
-                throw new InvalidOperationException();
-            }
-        }
-
-        public static async Task SetNameAsync(this IUser self, string name)
-        {
-            var invokeResult = default(bool?);
-
-            self.SetName(name,
+            self.Write(data,
                 () => invokeResult = true,
                 () => invokeResult = false);
 

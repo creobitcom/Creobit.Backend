@@ -1,5 +1,5 @@
 ﻿#if CREOBIT_BACKEND_STEAM && UNITY_STANDALONE
-namespace Creobit.Backend
+namespace Creobit.Backend.User
 {
     public interface ISteamUser : IUser
     {

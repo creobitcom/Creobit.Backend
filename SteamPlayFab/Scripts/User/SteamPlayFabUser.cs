@@ -1,7 +1,7 @@
 ﻿#if CREOBIT_BACKEND_PLAYFAB && CREOBIT_BACKEND_STEAM && UNITY_STANDALONE
 using System;
 
-namespace Creobit.Backend
+namespace Creobit.Backend.User
 {
     public sealed class SteamPlayFabUser : IPlayFabUser, ISteamUser
     {

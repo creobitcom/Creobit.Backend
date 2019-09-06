@@ -2,7 +2,7 @@
 using GooglePlayGames;
 using System;
 
-namespace Creobit.Backend
+namespace Creobit.Backend.User
 {
     public sealed class GooglePlayUser : IGooglePlayUser
     {
@@ -42,11 +42,13 @@ namespace Creobit.Backend
         #endregion
         #region GooglePlayUser
 
+        private IExceptionHandler _exceptionHandler;
+
         public IExceptionHandler ExceptionHandler
         {
-            get;
-            set;
-        } = Backend.ExceptionHandler.Default;
+            get => _exceptionHandler ?? Backend.ExceptionHandler.Default;
+            set => _exceptionHandler = value;
+        }
 
         #endregion
     }
