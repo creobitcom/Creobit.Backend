@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Creobit.Backend
+namespace Creobit.Backend.Application
 {
     public interface IApplicationData
     {

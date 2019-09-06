@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Reflection;
 
-namespace Creobit.Backend
+namespace Creobit.Backend.Application
 {
     public sealed class PlayFabApplicationData : IPlayFabApplicationData
     {
