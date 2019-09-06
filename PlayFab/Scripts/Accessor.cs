@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace Creobit.Backend
 {
-    public sealed class Accessor
+    internal sealed class Accessor
     {
         #region Object
 
