@@ -3,7 +3,7 @@ using Steamworks;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using UnityEngine;
+using UApplication = UnityEngine.Application;
 
 namespace Creobit.Backend.Auth
 {
@@ -17,7 +17,7 @@ namespace Creobit.Backend.Auth
         {
             if (SteamClient.RestartAppIfNecessary(AppId))
             {
-                if (Application.isEditor)
+                if (UApplication.isEditor)
                 {
                     var exception = new Exception("The Steam is not started!");
 
@@ -27,7 +27,7 @@ namespace Creobit.Backend.Auth
                 }
                 else
                 {
-                    Application.Quit();
+                    UApplication.Quit();
                 }
 
                 return;

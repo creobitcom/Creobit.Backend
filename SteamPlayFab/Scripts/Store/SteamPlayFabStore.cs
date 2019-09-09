@@ -4,7 +4,7 @@ using PlayFab.ClientModels;
 using Steamworks;
 using System;
 using System.Collections.Generic;
-using UnityEngine;
+using UApplication = UnityEngine.Application;
 
 namespace Creobit.Backend.Store
 {
@@ -76,7 +76,7 @@ namespace Creobit.Backend.Store
 
             if (virtualCurrency == "RM")
             {
-                if (Application.isEditor)
+                if (UApplication.isEditor)
                 {
                     var exception = new NotSupportedException("Steam purchases is don't work in the Editor!");
 
