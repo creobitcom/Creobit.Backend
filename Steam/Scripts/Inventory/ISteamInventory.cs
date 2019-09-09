@@ -8,17 +8,17 @@ namespace Creobit.Backend.Inventory
     {
         #region ISteamInventory
 
-        IEnumerable<(string DefinitionId, int SteamDefId)> DefinitionMap
-        {
-            get;
-        }
-
         InventoryDef[] InventoryDefs
         {
             get;
         }
 
         InventoryItem[] InventoryItems
+        {
+            get;
+        }
+
+        IEnumerable<(string ItemDefinitionId, int SteamDefId)> ItemDefinitionMap
         {
             get;
         }

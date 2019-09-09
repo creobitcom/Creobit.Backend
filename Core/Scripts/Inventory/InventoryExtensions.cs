@@ -9,24 +9,24 @@ namespace Creobit.Backend.Inventory
 
         private const int MillisecondsDelay = 10;
 
-        public static IDefinition FindDefinitionByDefinitionId(this IInventory self, string definitionId)
+        public static IItemDefinition FindItemDefinitionByItemDefinitionId(this IInventory self, string itemDefinitionId)
         {
-            foreach (var definition in self.Definitions)
+            foreach (var itemDefinition in self.ItemDefinitions)
             {
-                if (definition.Id == definitionId)
+                if (itemDefinition.Id == itemDefinitionId)
                 {
-                    return definition;
+                    return itemDefinition;
                 }
             }
 
             return null;
         }
 
-        public static async Task LoadDefinitions(this IInventory self)
+        public static async Task LoadItemDefinitionsAsync(this IInventory self)
         {
             var invokeResult = default(bool?);
 
-            self.LoadItems(
+            self.LoadItemDefinitions(
                 () => invokeResult = true,
                 () => invokeResult = false);
 

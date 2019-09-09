@@ -6,7 +6,7 @@ namespace Creobit.Backend.Inventory
     {
         #region IItem
 
-        IDefinition Definition
+        IItemDefinition ItemDefinition
         {
             get;
         }

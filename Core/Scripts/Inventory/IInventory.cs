@@ -7,7 +7,7 @@ namespace Creobit.Backend.Inventory
     {
         #region IInventory
 
-        IEnumerable<IDefinition> Definitions
+        IEnumerable<IItemDefinition> ItemDefinitions
         {
             get;
         }
@@ -17,7 +17,7 @@ namespace Creobit.Backend.Inventory
             get;
         }
 
-        void LoadDefinitions(Action onComplete, Action onFailure);
+        void LoadItemDefinitions(Action onComplete, Action onFailure);
 
         void LoadItems(Action onComplete, Action onFailure);
 

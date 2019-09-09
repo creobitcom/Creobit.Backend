@@ -10,22 +10,6 @@ namespace Creobit.Backend.Inventory
     {
         #region IInventory
 
-        IEnumerable<IDefinition> IInventory.Definitions
-        {
-            get
-            {
-                foreach (var definition in PlayFabInventory.Definitions)
-                {
-                    yield return definition;
-                }
-
-                foreach (var definition in SteamInventory.Definitions)
-                {
-                    yield return definition;
-                }
-            }
-        }
-
         IEnumerable<IItem> IInventory.Items
         {
             get
@@ -42,55 +26,18 @@ namespace Creobit.Backend.Inventory
             }
         }
 
-        void IInventory.LoadDefinitions(Action onComplete, Action onFailure)
+        IEnumerable<IItemDefinition> IInventory.ItemDefinitions
         {
-            var errorCount = 0;
-            var invokeCount = 2;
-
-            PlayFabInventory.LoadDefinitions(
-                () =>
-                {
-                    invokeCount -= 1;
-
-                    Handle();
-                },
-                () =>
-                {
-                    errorCount += 1;
-                    invokeCount -= 1;
-
-                    Handle();
-                });
-
-            SteamInventory.LoadDefinitions(
-                () =>
-                {
-                    invokeCount -= 1;
-
-                    Handle();
-                },
-                () =>
-                {
-                    errorCount += 1;
-                    invokeCount -= 1;
-
-                    Handle();
-                });
-
-            void Handle()
+            get
             {
-                if (invokeCount != 0)
+                foreach (var itemDefinition in PlayFabInventory.ItemDefinitions)
                 {
-                    return;
+                    yield return itemDefinition;
                 }
 
-                if (errorCount > 0)
+                foreach (var itemDefinition in SteamInventory.ItemDefinitions)
                 {
-                    onFailure();
-                }
-                else
-                {
-                    onComplete();
+                    yield return itemDefinition;
                 }
             }
         }
@@ -148,12 +95,65 @@ namespace Creobit.Backend.Inventory
             }
         }
 
+        void IInventory.LoadItemDefinitions(Action onComplete, Action onFailure)
+        {
+            var errorCount = 0;
+            var invokeCount = 2;
+
+            PlayFabInventory.LoadItemDefinitions(
+                () =>
+                {
+                    invokeCount -= 1;
+
+                    Handle();
+                },
+                () =>
+                {
+                    errorCount += 1;
+                    invokeCount -= 1;
+
+                    Handle();
+                });
+
+            SteamInventory.LoadItemDefinitions(
+                () =>
+                {
+                    invokeCount -= 1;
+
+                    Handle();
+                },
+                () =>
+                {
+                    errorCount += 1;
+                    invokeCount -= 1;
+
+                    Handle();
+                });
+
+            void Handle()
+            {
+                if (invokeCount != 0)
+                {
+                    return;
+                }
+
+                if (errorCount > 0)
+                {
+                    onFailure();
+                }
+                else
+                {
+                    onComplete();
+                }
+            }
+        }
+
         #endregion
         #region IPlayFabInventory
 
         string IPlayFabInventory.CatalogVersion => PlayFabInventory.CatalogVersion;
 
-        IEnumerable<(string DefinitionId, string PlayFabItemId)> IPlayFabInventory.DefinitionMap => PlayFabInventory.DefinitionMap;
+        IEnumerable<(string ItemDefinitionId, string PlayFabItemId)> IPlayFabInventory.ItemDefinitionMap => PlayFabInventory.ItemDefinitionMap;
 
         GetCatalogItemsResult IPlayFabInventory.GetCatalogItemsResult => PlayFabInventory.GetCatalogItemsResult;
 
@@ -162,11 +162,11 @@ namespace Creobit.Backend.Inventory
         #endregion
         #region ISteamInventory
 
-        IEnumerable<(string DefinitionId, int SteamDefId)> ISteamInventory.DefinitionMap => SteamInventory.DefinitionMap;
-
         InventoryDef[] ISteamInventory.InventoryDefs => SteamInventory.InventoryDefs;
 
         InventoryItem[] ISteamInventory.InventoryItems => SteamInventory.InventoryItems;
+
+        IEnumerable<(string ItemDefinitionId, int SteamDefId)> ISteamInventory.ItemDefinitionMap => SteamInventory.ItemDefinitionMap;
 
         #endregion
         #region SteamPlayFabInventory

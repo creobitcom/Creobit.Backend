@@ -10,13 +10,11 @@ namespace Creobit.Backend.Inventory
     {
         #region IInventory
 
-        IEnumerable<IDefinition> IInventory.Definitions => (IEnumerable<IDefinition>)_definitions
-            ?? Array.Empty<IDefinition>();
+        IEnumerable<IItemDefinition> IInventory.ItemDefinitions => (IEnumerable<IItemDefinition>)_itemDefinitions ?? Array.Empty<IItemDefinition>();
 
-        IEnumerable<IItem> IInventory.Items => (IEnumerable<IItem>)_items
-            ?? Array.Empty<IItem>();
+        IEnumerable<IItem> IInventory.Items => (IEnumerable<IItem>)_items ?? Array.Empty<IItem>();
 
-        void IInventory.LoadDefinitions(Action onComplete, Action onFailure)
+        void IInventory.LoadItemDefinitions(Action onComplete, Action onFailure)
         {
             try
             {
@@ -49,65 +47,65 @@ namespace Creobit.Backend.Inventory
 
             void CreateDefinitions()
             {
-                _definitions = new List<PlayFabDefinition>();
+                _itemDefinitions = new List<PlayFabItemDefinition>();
 
-                foreach (var (DefinitionId, PlayFabItemId) in DefinitionMap)
+                foreach (var (ItemDefinitionId, PlayFabItemId) in ItemDefinitionMap)
                 {
                     var catalogItem = this.FindCatalogItemByPlayFabItemId(PlayFabItemId);
 
                     if (catalogItem == null)
                     {
-                        var exception = new Exception($"The CatalogItem is not found for the DefinitionId \"{DefinitionId}\"!");
+                        var exception = new Exception($"The CatalogItem is not found for the ItemDefinitionId \"{ItemDefinitionId}\"!");
 
                         ExceptionHandler.Process(exception);
 
                         continue;
                     }
 
-                    _definitions.Add(new PlayFabDefinition(DefinitionId, catalogItem));
+                    _itemDefinitions.Add(new PlayFabItemDefinition(ItemDefinitionId, catalogItem));
                 }
 
-                foreach (var definition in _definitions)
+                foreach (var itemDefinition in _itemDefinitions)
                 {
-                    var catalogItem = definition.CatalogItem;
+                    var catalogItem = itemDefinition.CatalogItem;
                     var bundle = catalogItem.Bundle;
 
                     if (bundle != null && bundle.BundledItems != null)
                     {
-                        InitializeBundledDefinitions(definition, bundle.BundledItems);
+                        InitializeBundledDefinitions(itemDefinition, bundle.BundledItems);
                     }
 
                     var container = catalogItem.Container;
 
                     if (container != null && container.ItemContents != null)
                     {
-                        InitializeBundledDefinitions(definition, container.ItemContents);
+                        InitializeBundledDefinitions(itemDefinition, container.ItemContents);
                     }
                 }
 
-                void InitializeBundledDefinitions(PlayFabDefinition definition, IEnumerable<string> bundledPlayFabItemIds)
+                void InitializeBundledDefinitions(PlayFabItemDefinition itemDefinition, IEnumerable<string> bundledPlayFabItemIds)
                 {
                     foreach (var bundledPlayFabItemId in bundledPlayFabItemIds)
                     {
-                        var bundledDefinitionId = this.FindDefinitionIdByPlayFabItemId(bundledPlayFabItemId);
+                        var bundledItemDefinitionId = this.FindItemDefinitionIdByPlayFabItemId(bundledPlayFabItemId);
 
-                        if (string.IsNullOrWhiteSpace(bundledDefinitionId))
+                        if (string.IsNullOrWhiteSpace(bundledItemDefinitionId))
                         {
                             continue;
                         }
 
-                        var bundledDefinition = this.FindDefinitionByDefinitionId(bundledDefinitionId);
+                        var bundledItemDefinition = this.FindItemDefinitionByItemDefinitionId(bundledItemDefinitionId);
 
-                        if (bundledDefinition == null)
+                        if (bundledItemDefinition == null)
                         {
-                            var exception = new Exception($"The Definition is not found for the DefinitionId \"{bundledDefinitionId}\"!");
+                            var exception = new Exception($"The ItemDefinition is not found for the ItemDefinitionId \"{bundledItemDefinitionId}\"!");
 
                             ExceptionHandler.Process(exception);
 
                             continue;
                         }
 
-                        definition.AddBundledDefinition(bundledDefinition, 1);
+                        itemDefinition.AddBundledItemDefinition(bundledItemDefinition, 1);
                     }
                 }
             }
@@ -149,25 +147,25 @@ namespace Creobit.Backend.Inventory
 
                 foreach (var itemInstance in _getUserInventoryResult.Inventory)
                 {
-                    var definitionId = this.FindDefinitionIdByPlayFabItemId(itemInstance.ItemId);
+                    var itemDefinitionId = this.FindItemDefinitionIdByPlayFabItemId(itemInstance.ItemId);
 
-                    if (string.IsNullOrWhiteSpace(definitionId))
+                    if (string.IsNullOrWhiteSpace(itemDefinitionId))
                     {
                         continue;
                     }
 
-                    var definition = this.FindDefinitionByDefinitionId(definitionId);
+                    var itemDefinition = this.FindItemDefinitionByItemDefinitionId(itemDefinitionId);
 
-                    if (definition == null)
+                    if (itemDefinition == null)
                     {
-                        var exception = new Exception($"The Definition is not found for the DefinitionId \"{definitionId}\"!");
+                        var exception = new Exception($"The ItemDefinition is not found for the ItemDefinitionId \"{itemDefinitionId}\"!");
 
                         ExceptionHandler.Process(exception);
 
                         continue;
                     }
 
-                    var item = new PlayFabItem(definition, itemInstance)
+                    var item = new PlayFabItem(itemDefinition, itemInstance)
                     {
                         Consume = Consume
                     };
@@ -182,24 +180,24 @@ namespace Creobit.Backend.Inventory
 
         string IPlayFabInventory.CatalogVersion => CatalogVersion;
 
-        IEnumerable<(string DefinitionId, string PlayFabItemId)> IPlayFabInventory.DefinitionMap => DefinitionMap;
-
         GetCatalogItemsResult IPlayFabInventory.GetCatalogItemsResult => _getCatalogItemsResult;
 
         GetUserInventoryResult IPlayFabInventory.GetUserInventoryResult => _getUserInventoryResult;
+
+        IEnumerable<(string ItemDefinitionId, string PlayFabItemId)> IPlayFabInventory.ItemDefinitionMap => ItemDefinitionMap;
 
         #endregion
         #region PlayFabInventory
 
         private readonly string CatalogVersion;
 
-        private List<PlayFabDefinition> _definitions;
+        private List<PlayFabItemDefinition> _itemDefinitions;
         private List<PlayFabItem> _items;
 
         private GetCatalogItemsResult _getCatalogItemsResult;
         private GetUserInventoryResult _getUserInventoryResult;
 
-        private IEnumerable<(string DefinitionId, string PlayFabItemId)> _definitionMap;
+        private IEnumerable<(string ItemDefinitionId, string PlayFabItemId)> _itemDefinitionMap;
         private IExceptionHandler _exceptionHandler;
         private IPlayFabErrorHandler _playFabErrorHandler;
 
@@ -208,10 +206,10 @@ namespace Creobit.Backend.Inventory
             CatalogVersion = catalogVersion;
         }
 
-        public IEnumerable<(string DefinitionId, string PlayFabItemId)> DefinitionMap
+        public IEnumerable<(string ItemDefinitionId, string PlayFabItemId)> ItemDefinitionMap
         {
-            get => _definitionMap ?? Array.Empty<ValueTuple<string, string>>();
-            set => _definitionMap = value;
+            get => _itemDefinitionMap ?? Array.Empty<ValueTuple<string, string>>();
+            set => _itemDefinitionMap = value;
         }
 
         public IExceptionHandler ExceptionHandler

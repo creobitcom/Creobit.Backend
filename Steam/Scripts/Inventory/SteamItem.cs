@@ -8,7 +8,7 @@ namespace Creobit.Backend.Inventory
     {
         #region IItem
 
-        IDefinition IItem.Definition => Definition;
+        IItemDefinition IItem.ItemDefinition => ItemDefinition;
 
         int? IItem.RemainingUses => InventoryItem.Quantity;
 
@@ -22,12 +22,12 @@ namespace Creobit.Backend.Inventory
         #endregion
         #region SteamItem
 
-        internal readonly IDefinition Definition;
+        internal readonly IItemDefinition ItemDefinition;
         internal readonly InventoryItem InventoryItem;
 
-        public SteamItem(IDefinition definition, InventoryItem inventoryItem)
+        public SteamItem(IItemDefinition itemDefinition, InventoryItem inventoryItem)
         {
-            Definition = definition;
+            ItemDefinition = itemDefinition;
             InventoryItem = inventoryItem;
         }
 

@@ -8,7 +8,7 @@ namespace Creobit.Backend.Inventory
     {
         #region IItem
 
-        IDefinition IItem.Definition => Definition;
+        IItemDefinition IItem.ItemDefinition => ItemDefinition;
 
         int? IItem.RemainingUses => ItemInstance.RemainingUses;
 
@@ -22,12 +22,12 @@ namespace Creobit.Backend.Inventory
         #endregion
         #region PlayFabItem
 
-        internal readonly IDefinition Definition;
+        internal readonly IItemDefinition ItemDefinition;
         internal readonly ItemInstance ItemInstance;
 
-        internal PlayFabItem(IDefinition definition, ItemInstance itemInstance)
+        internal PlayFabItem(IItemDefinition itemDefinition, ItemInstance itemInstance)
         {
-            Definition = definition;
+            ItemDefinition = itemDefinition;
             ItemInstance = itemInstance;
         }
 

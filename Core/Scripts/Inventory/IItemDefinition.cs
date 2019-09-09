@@ -2,11 +2,11 @@
 
 namespace Creobit.Backend.Inventory
 {
-    public interface IDefinition
+    public interface IItemDefinition
     {
-        #region IDefinition
+        #region IItemDefinition
 
-        IEnumerable<(IDefinition Definition, uint Count)> BundledDefinitions
+        IEnumerable<(IItemDefinition ItemDefinition, uint Count)> BundledItemDefinitions
         {
             get;
         }

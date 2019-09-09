@@ -13,17 +13,17 @@ namespace Creobit.Backend.Inventory
             get;
         }
 
-        IEnumerable<(string DefinitionId, string PlayFabItemId)> DefinitionMap
-        {
-            get;
-        }
-
         GetCatalogItemsResult GetCatalogItemsResult
         {
             get;
         }
 
         GetUserInventoryResult GetUserInventoryResult
+        {
+            get;
+        }
+
+        IEnumerable<(string ItemDefinitionId, string PlayFabItemId)> ItemDefinitionMap
         {
             get;
         }

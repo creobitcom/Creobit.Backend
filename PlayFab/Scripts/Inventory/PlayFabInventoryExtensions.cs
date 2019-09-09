@@ -27,13 +27,13 @@ namespace Creobit.Backend.Inventory
             return null;
         }
 
-        public static string FindDefinitionIdByPlayFabItemId(this IPlayFabInventory self, string playFabItemId)
+        public static string FindItemDefinitionIdByPlayFabItemId(this IPlayFabInventory self, string playFabItemId)
         {
-            foreach (var (DefinitionId, PlayFabItemId) in self.DefinitionMap)
+            foreach (var (ItemDefinitionId, PlayFabItemId) in self.ItemDefinitionMap)
             {
                 if (PlayFabItemId == playFabItemId)
                 {
-                    return DefinitionId;
+                    return ItemDefinitionId;
                 }
             }
 
