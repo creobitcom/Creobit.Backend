@@ -2,7 +2,21 @@
 
 namespace Creobit.Backend.Inventory
 {
-    public interface IItem<out TItemDefinition>
+    public interface IItem
+    {
+        #region IItem
+
+        int? RemainingUses
+        {
+            get;
+        }
+
+        void Consume(int count, Action onComplete, Action onFailure);
+
+        #endregion
+    }
+
+    public interface IItem<out TItemDefinition> : IItem
         where TItemDefinition : IItemDefinition
     {
         #region IItem<TItemDefinition>
@@ -11,13 +25,6 @@ namespace Creobit.Backend.Inventory
         {
             get;
         }
-
-        int? RemainingUses
-        {
-            get;
-        }
-
-        void Consume(int count, Action onComplete, Action onFailure);
 
         #endregion
     }

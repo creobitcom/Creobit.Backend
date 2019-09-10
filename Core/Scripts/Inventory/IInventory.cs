@@ -3,7 +3,18 @@ using System.Collections.Generic;
 
 namespace Creobit.Backend.Inventory
 {
-    public interface IInventory<out TItemDefinition, out TItem>
+    public interface IInventory
+    {
+        #region IInventory
+
+        void LoadItemDefinitions(Action onComplete, Action onFailure);
+
+        void LoadItems(Action onComplete, Action onFailure);
+
+        #endregion
+    }
+
+    public interface IInventory<out TItemDefinition, out TItem> : IInventory
         where TItemDefinition : IItemDefinition
         where TItem : IItem<TItemDefinition>
     {
@@ -18,10 +29,6 @@ namespace Creobit.Backend.Inventory
         {
             get;
         }
-
-        void LoadItemDefinitions(Action onComplete, Action onFailure);
-
-        void LoadItems(Action onComplete, Action onFailure);
 
         #endregion
     }

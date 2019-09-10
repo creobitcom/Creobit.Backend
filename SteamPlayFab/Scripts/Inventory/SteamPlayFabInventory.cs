@@ -1,6 +1,4 @@
 ﻿#if CREOBIT_BACKEND_PLAYFAB && CREOBIT_BACKEND_STEAM && UNITY_STANDALONE
-using PlayFab.ClientModels;
-using Steamworks;
 using System;
 using System.Collections.Generic;
 
@@ -10,39 +8,7 @@ namespace Creobit.Backend.Inventory
     {
         #region IInventory
 
-        IEnumerable<IItem<IItemDefinition>> IInventory<IItemDefinition, IItem<IItemDefinition>>.Items
-        {
-            get
-            {
-                foreach (var item in PlayFabInventory.Items)
-                {
-                    yield return item;
-                }
-
-                foreach (var item in SteamInventory.Items)
-                {
-                    yield return item;
-                }
-            }
-        }
-
-        IEnumerable<IItemDefinition> IInventory<IItemDefinition, IItem<IItemDefinition>>.ItemDefinitions
-        {
-            get
-            {
-                foreach (var itemDefinition in PlayFabInventory.ItemDefinitions)
-                {
-                    yield return itemDefinition;
-                }
-
-                foreach (var itemDefinition in SteamInventory.ItemDefinitions)
-                {
-                    yield return itemDefinition;
-                }
-            }
-        }
-
-        void IInventory<IItemDefinition, IItem<IItemDefinition>>.LoadItemDefinitions(Action onComplete, Action onFailure)
+        void IInventory.LoadItemDefinitions(Action onComplete, Action onFailure)
         {
             var errorCount = 0;
             var invokeCount = 2;
@@ -95,7 +61,7 @@ namespace Creobit.Backend.Inventory
             }
         }
 
-        void IInventory<IItemDefinition, IItem<IItemDefinition>>.LoadItems(Action onComplete, Action onFailure)
+        void IInventory.LoadItems(Action onComplete, Action onFailure)
         {
             var errorCount = 0;
             var invokeCount = 2;
@@ -144,6 +110,41 @@ namespace Creobit.Backend.Inventory
                 else
                 {
                     onComplete();
+                }
+            }
+        }
+
+        #endregion
+        #region IInventory<IItemDefinition, IItem<IItemDefinition>>
+
+        IEnumerable<IItem<IItemDefinition>> IInventory<IItemDefinition, IItem<IItemDefinition>>.Items
+        {
+            get
+            {
+                foreach (var item in PlayFabInventory.Items)
+                {
+                    yield return item;
+                }
+
+                foreach (var item in SteamInventory.Items)
+                {
+                    yield return item;
+                }
+            }
+        }
+
+        IEnumerable<IItemDefinition> IInventory<IItemDefinition, IItem<IItemDefinition>>.ItemDefinitions
+        {
+            get
+            {
+                foreach (var itemDefinition in PlayFabInventory.ItemDefinitions)
+                {
+                    yield return itemDefinition;
+                }
+
+                foreach (var itemDefinition in SteamInventory.ItemDefinitions)
+                {
+                    yield return itemDefinition;
                 }
             }
         }

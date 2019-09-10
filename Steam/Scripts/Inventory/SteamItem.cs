@@ -8,11 +8,14 @@ namespace Creobit.Backend.Inventory
     {
         #region IItem
 
+        int? IItem.RemainingUses => InventoryItem.Quantity;
+
+        void IItem.Consume(int count, Action onComplete, Action onFailure) => Consume(this, count, onComplete, onFailure);
+
+        #endregion
+        #region IItem<ISteamItemDefinition>
+
         IItemDefinition IItem<ISteamItemDefinition>.ItemDefinition => ItemDefinition;
-
-        int? IItem<ISteamItemDefinition>.RemainingUses => InventoryItem.Quantity;
-
-        void IItem<ISteamItemDefinition>.Consume(int count, Action onComplete, Action onFailure) => Consume(this, count, onComplete, onFailure);
 
         #endregion
         #region ISteamItem

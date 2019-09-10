@@ -10,15 +10,7 @@ namespace Creobit.Backend.Inventory
     {
         #region IInventory
 
-        IEnumerable<IPlayFabItemDefinition> IInventory<IPlayFabItemDefinition, IPlayFabItem>.ItemDefinitions
-            => (IEnumerable<IPlayFabItemDefinition>)_itemDefinitions
-            ?? Array.Empty<IPlayFabItemDefinition>();
-
-        IEnumerable<IPlayFabItem> IInventory<IPlayFabItemDefinition, IPlayFabItem>.Items
-            => (IEnumerable<IPlayFabItem>)_items
-            ?? Array.Empty<IPlayFabItem>();
-
-        void IInventory<IPlayFabItemDefinition, IPlayFabItem>.LoadItemDefinitions(Action onComplete, Action onFailure)
+        void IInventory.LoadItemDefinitions(Action onComplete, Action onFailure)
         {
             try
             {
@@ -115,7 +107,7 @@ namespace Creobit.Backend.Inventory
             }
         }
 
-        void IInventory<IPlayFabItemDefinition, IPlayFabItem>.LoadItems(Action onComplete, Action onFailure)
+        void IInventory.LoadItems(Action onComplete, Action onFailure)
         {
             try
             {
@@ -178,6 +170,17 @@ namespace Creobit.Backend.Inventory
                 }
             }
         }
+
+        #endregion
+        #region IInventory<IPlayFabItemDefinition, IPlayFabItem>
+
+        IEnumerable<IPlayFabItemDefinition> IInventory<IPlayFabItemDefinition, IPlayFabItem>.ItemDefinitions
+            => (IEnumerable<IPlayFabItemDefinition>)_itemDefinitions
+            ?? Array.Empty<IPlayFabItemDefinition>();
+
+        IEnumerable<IPlayFabItem> IInventory<IPlayFabItemDefinition, IPlayFabItem>.Items
+            => (IEnumerable<IPlayFabItem>)_items
+            ?? Array.Empty<IPlayFabItem>();
 
         #endregion
         #region IPlayFabInventory

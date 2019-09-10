@@ -24,9 +24,7 @@ namespace Creobit.Backend.Inventory
             return default;
         }
 
-        public static async Task LoadItemDefinitionsAsync<TItem, TItemDefinition>(this IInventory<TItemDefinition, TItem> self)
-            where TItem : IItem<TItemDefinition>
-            where TItemDefinition : IItemDefinition
+        public static async Task LoadItemDefinitionsAsync(this IInventory self)
         {
             var invokeResult = default(bool?);
 
@@ -45,9 +43,7 @@ namespace Creobit.Backend.Inventory
             }
         }
 
-        public static async Task LoadItemsAsync<TItem, TItemDefinition>(this IInventory<TItemDefinition, TItem> self)
-            where TItem : IItem<TItemDefinition>
-            where TItemDefinition : IItemDefinition
+        public static async Task LoadItemsAsync(this IInventory self)
         {
             var invokeResult = default(bool?);
 

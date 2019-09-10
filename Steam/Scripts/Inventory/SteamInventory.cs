@@ -9,15 +9,7 @@ namespace Creobit.Backend.Inventory
     {
         #region IInventory
 
-        IEnumerable<ISteamItem> IInventory<ISteamItemDefinition, ISteamItem>.Items
-            => (IEnumerable<ISteamItem>)_items
-            ?? Array.Empty<ISteamItem>();
-
-        IEnumerable<ISteamItemDefinition> IInventory<ISteamItemDefinition, ISteamItem>.ItemDefinitions
-            => (IEnumerable<ISteamItemDefinition>)_itemDefinitions
-            ?? Array.Empty<ISteamItemDefinition>();
-
-        async void IInventory<ISteamItemDefinition, ISteamItem>.LoadItems(Action onComplete, Action onFailure)
+        async void IInventory.LoadItems(Action onComplete, Action onFailure)
         {
             try
             {
@@ -75,7 +67,7 @@ namespace Creobit.Backend.Inventory
             }
         }
 
-        async void IInventory<ISteamItemDefinition, ISteamItem>.LoadItemDefinitions(Action onComplete, Action onFailure)
+        async void IInventory.LoadItemDefinitions(Action onComplete, Action onFailure)
         {
             try
             {
@@ -120,6 +112,17 @@ namespace Creobit.Backend.Inventory
                 }
             }
         }
+
+        #endregion
+        #region IInventory<ISteamItemDefinition, ISteamItem>
+
+        IEnumerable<ISteamItem> IInventory<ISteamItemDefinition, ISteamItem>.Items
+            => (IEnumerable<ISteamItem>)_items
+            ?? Array.Empty<ISteamItem>();
+
+        IEnumerable<ISteamItemDefinition> IInventory<ISteamItemDefinition, ISteamItem>.ItemDefinitions
+            => (IEnumerable<ISteamItemDefinition>)_itemDefinitions
+            ?? Array.Empty<ISteamItemDefinition>();
 
         #endregion
         #region ISteamInventory
