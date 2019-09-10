@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Creobit.Backend.Inventory
 {
-    public interface IPlayFabInventory : IInventory
+    public interface IPlayFabInventory : IInventory<IPlayFabItemDefinition, IPlayFabItem>
     {
         #region IPlayFabInventory
 

@@ -3,16 +3,18 @@ using System.Collections.Generic;
 
 namespace Creobit.Backend.Inventory
 {
-    public interface IInventory
+    public interface IInventory<out TItemDefinition, out TItem>
+        where TItemDefinition : IItemDefinition
+        where TItem : IItem<TItemDefinition>
     {
-        #region IInventory
+        #region IInventory<TItemDefinition, TItem>
 
-        IEnumerable<IItemDefinition> ItemDefinitions
+        IEnumerable<TItemDefinition> ItemDefinitions
         {
             get;
         }
 
-        IEnumerable<IItem> Items
+        IEnumerable<TItem> Items
         {
             get;
         }

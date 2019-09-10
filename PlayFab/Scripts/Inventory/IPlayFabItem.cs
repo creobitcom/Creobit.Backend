@@ -3,7 +3,7 @@ using PlayFab.ClientModels;
 
 namespace Creobit.Backend.Inventory
 {
-    public interface IPlayFabItem : IItem
+    public interface IPlayFabItem : IItem<IPlayFabItemDefinition>
     {
         #region IPlayFabItem
 

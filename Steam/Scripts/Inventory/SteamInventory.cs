@@ -9,15 +9,15 @@ namespace Creobit.Backend.Inventory
     {
         #region IInventory
 
-        IEnumerable<IItem> IInventory.Items
-            => (IEnumerable<IItem>)_items
-            ?? Array.Empty<IItem>();
+        IEnumerable<ISteamItem> IInventory<ISteamItemDefinition, ISteamItem>.Items
+            => (IEnumerable<ISteamItem>)_items
+            ?? Array.Empty<ISteamItem>();
 
-        IEnumerable<IItemDefinition> IInventory.ItemDefinitions
-            => (IEnumerable<IItemDefinition>)_itemDefinitions
-            ?? Array.Empty<IItemDefinition>();
+        IEnumerable<ISteamItemDefinition> IInventory<ISteamItemDefinition, ISteamItem>.ItemDefinitions
+            => (IEnumerable<ISteamItemDefinition>)_itemDefinitions
+            ?? Array.Empty<ISteamItemDefinition>();
 
-        async void IInventory.LoadItems(Action onComplete, Action onFailure)
+        async void IInventory<ISteamItemDefinition, ISteamItem>.LoadItems(Action onComplete, Action onFailure)
         {
             try
             {
@@ -75,7 +75,7 @@ namespace Creobit.Backend.Inventory
             }
         }
 
-        async void IInventory.LoadItemDefinitions(Action onComplete, Action onFailure)
+        async void IInventory<ISteamItemDefinition, ISteamItem>.LoadItemDefinitions(Action onComplete, Action onFailure)
         {
             try
             {

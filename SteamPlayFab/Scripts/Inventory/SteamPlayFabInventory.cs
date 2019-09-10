@@ -6,11 +6,11 @@ using System.Collections.Generic;
 
 namespace Creobit.Backend.Inventory
 {
-    public sealed class SteamPlayFabInventory : IPlayFabInventory, ISteamInventory
+    public sealed class SteamPlayFabInventory : IInventory<IItemDefinition, IItem<IItemDefinition>>
     {
         #region IInventory
 
-        IEnumerable<IItem> IInventory.Items
+        IEnumerable<IItem<IItemDefinition>> IInventory<IItemDefinition, IItem<IItemDefinition>>.Items
         {
             get
             {
@@ -26,7 +26,7 @@ namespace Creobit.Backend.Inventory
             }
         }
 
-        IEnumerable<IItemDefinition> IInventory.ItemDefinitions
+        IEnumerable<IItemDefinition> IInventory<IItemDefinition, IItem<IItemDefinition>>.ItemDefinitions
         {
             get
             {
@@ -42,60 +42,7 @@ namespace Creobit.Backend.Inventory
             }
         }
 
-        void IInventory.LoadItems(Action onComplete, Action onFailure)
-        {
-            var errorCount = 0;
-            var invokeCount = 2;
-
-            PlayFabInventory.LoadItems(
-                () =>
-                {
-                    invokeCount -= 1;
-
-                    Handle();
-                },
-                () =>
-                {
-                    errorCount += 1;
-                    invokeCount -= 1;
-
-                    Handle();
-                });
-
-            SteamInventory.LoadItems(
-                () =>
-                {
-                    invokeCount -= 1;
-
-                    Handle();
-                },
-                () =>
-                {
-                    errorCount += 1;
-                    invokeCount -= 1;
-
-                    Handle();
-                });
-
-            void Handle()
-            {
-                if (invokeCount != 0)
-                {
-                    return;
-                }
-
-                if (errorCount > 0)
-                {
-                    onFailure();
-                }
-                else
-                {
-                    onComplete();
-                }
-            }
-        }
-
-        void IInventory.LoadItemDefinitions(Action onComplete, Action onFailure)
+        void IInventory<IItemDefinition, IItem<IItemDefinition>>.LoadItemDefinitions(Action onComplete, Action onFailure)
         {
             var errorCount = 0;
             var invokeCount = 2;
@@ -148,31 +95,64 @@ namespace Creobit.Backend.Inventory
             }
         }
 
-        #endregion
-        #region IPlayFabInventory
+        void IInventory<IItemDefinition, IItem<IItemDefinition>>.LoadItems(Action onComplete, Action onFailure)
+        {
+            var errorCount = 0;
+            var invokeCount = 2;
 
-        string IPlayFabInventory.CatalogVersion => PlayFabInventory.CatalogVersion;
+            PlayFabInventory.LoadItems(
+                () =>
+                {
+                    invokeCount -= 1;
 
-        IEnumerable<(string ItemDefinitionId, string PlayFabItemId)> IPlayFabInventory.ItemDefinitionMap => PlayFabInventory.ItemDefinitionMap;
+                    Handle();
+                },
+                () =>
+                {
+                    errorCount += 1;
+                    invokeCount -= 1;
 
-        GetCatalogItemsResult IPlayFabInventory.GetCatalogItemsResult => PlayFabInventory.GetCatalogItemsResult;
+                    Handle();
+                });
 
-        GetUserInventoryResult IPlayFabInventory.GetUserInventoryResult => PlayFabInventory.GetUserInventoryResult;
+            SteamInventory.LoadItems(
+                () =>
+                {
+                    invokeCount -= 1;
 
-        #endregion
-        #region ISteamInventory
+                    Handle();
+                },
+                () =>
+                {
+                    errorCount += 1;
+                    invokeCount -= 1;
 
-        InventoryDef[] ISteamInventory.InventoryDefs => SteamInventory.InventoryDefs;
+                    Handle();
+                });
 
-        InventoryItem[] ISteamInventory.InventoryItems => SteamInventory.InventoryItems;
+            void Handle()
+            {
+                if (invokeCount != 0)
+                {
+                    return;
+                }
 
-        IEnumerable<(string ItemDefinitionId, int SteamDefId)> ISteamInventory.ItemDefinitionMap => SteamInventory.ItemDefinitionMap;
+                if (errorCount > 0)
+                {
+                    onFailure();
+                }
+                else
+                {
+                    onComplete();
+                }
+            }
+        }
 
         #endregion
         #region SteamPlayFabInventory
 
-        private readonly IPlayFabInventory PlayFabInventory;
-        private readonly ISteamInventory SteamInventory;
+        public readonly IPlayFabInventory PlayFabInventory;
+        public readonly ISteamInventory SteamInventory;
 
         public SteamPlayFabInventory(IPlayFabInventory playFabInventory, ISteamInventory steamInventory)
         {

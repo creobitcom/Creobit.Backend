@@ -9,7 +9,9 @@ namespace Creobit.Backend.Inventory
 
         private const int MillisecondsDelay = 10;
 
-        public static IItemDefinition FindItemDefinitionByItemDefinitionId(this IInventory self, string itemDefinitionId)
+        public static TItemDefinition FindItemDefinitionByItemDefinitionId<TItemDefinition, TItem>(this IInventory<TItemDefinition, TItem> self, string itemDefinitionId)
+            where TItem : IItem<TItemDefinition>
+            where TItemDefinition : IItemDefinition
         {
             foreach (var itemDefinition in self.ItemDefinitions)
             {
@@ -19,10 +21,12 @@ namespace Creobit.Backend.Inventory
                 }
             }
 
-            return null;
+            return default;
         }
 
-        public static async Task LoadItemDefinitionsAsync(this IInventory self)
+        public static async Task LoadItemDefinitionsAsync<TItem, TItemDefinition>(this IInventory<TItemDefinition, TItem> self)
+            where TItem : IItem<TItemDefinition>
+            where TItemDefinition : IItemDefinition
         {
             var invokeResult = default(bool?);
 
@@ -41,7 +45,9 @@ namespace Creobit.Backend.Inventory
             }
         }
 
-        public static async Task LoadItemsAsync(this IInventory self)
+        public static async Task LoadItemsAsync<TItem, TItemDefinition>(this IInventory<TItemDefinition, TItem> self)
+            where TItem : IItem<TItemDefinition>
+            where TItemDefinition : IItemDefinition
         {
             var invokeResult = default(bool?);
 

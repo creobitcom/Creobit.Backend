@@ -2,9 +2,10 @@
 
 namespace Creobit.Backend.Inventory
 {
-    public interface IItem
+    public interface IItem<out TItemDefinition>
+        where TItemDefinition : IItemDefinition
     {
-        #region IItem
+        #region IItem<TItemDefinition>
 
         IItemDefinition ItemDefinition
         {
