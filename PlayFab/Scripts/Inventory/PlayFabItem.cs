@@ -15,7 +15,7 @@ namespace Creobit.Backend.Inventory
         #endregion
         #region IItem<IPlayFabItemDefinition>
 
-        IItemDefinition IItem<IPlayFabItemDefinition>.ItemDefinition => ItemDefinition;
+        IPlayFabItemDefinition IItem<IPlayFabItemDefinition>.ItemDefinition => ItemDefinition;
 
         #endregion
         #region IPlayFabItem
@@ -25,10 +25,10 @@ namespace Creobit.Backend.Inventory
         #endregion
         #region PlayFabItem
 
-        internal readonly IItemDefinition ItemDefinition;
+        internal readonly IPlayFabItemDefinition ItemDefinition;
         internal readonly ItemInstance ItemInstance;
 
-        internal PlayFabItem(IItemDefinition itemDefinition, ItemInstance itemInstance)
+        internal PlayFabItem(IPlayFabItemDefinition itemDefinition, ItemInstance itemInstance)
         {
             ItemDefinition = itemDefinition;
             ItemInstance = itemInstance;
