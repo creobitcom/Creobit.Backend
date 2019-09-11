@@ -80,7 +80,7 @@ namespace Creobit.Backend.Store
                 {
                     var exception = new NotSupportedException("Steam purchases is don't work in the Editor!");
 
-                    ExceptionHandler?.Process(exception);
+                    ExceptionHandler.Process(exception);
 
                     onFailure();
 
@@ -118,14 +118,14 @@ namespace Creobit.Backend.Store
                         },
                         error =>
                         {
-                            PlayFabErrorHandler?.Process(error);
+                            PlayFabErrorHandler.Process(error);
 
                             onFailure();
                         });
                 }
                 catch (Exception exception)
                 {
-                    ExceptionHandler?.Process(exception);
+                    ExceptionHandler.Process(exception);
 
                     onFailure();
                 }
@@ -154,14 +154,14 @@ namespace Creobit.Backend.Store
                         },
                         error =>
                         {
-                            PlayFabErrorHandler?.Process(error);
+                            PlayFabErrorHandler.Process(error);
 
                             onFailure();
                         });
                 }
                 catch (Exception exception)
                 {
-                    ExceptionHandler?.Process(exception);
+                    ExceptionHandler.Process(exception);
 
                     onFailure();
                 }
@@ -182,14 +182,14 @@ namespace Creobit.Backend.Store
                         },
                         error =>
                         {
-                            PlayFabErrorHandler?.Process(error);
+                            PlayFabErrorHandler.Process(error);
 
                             onFailure();
                         });
                 }
                 catch (Exception exception)
                 {
-                    ExceptionHandler?.Process(exception);
+                    ExceptionHandler.Process(exception);
 
                     onFailure();
                 }
@@ -216,14 +216,14 @@ namespace Creobit.Backend.Store
                         },
                         error =>
                         {
-                            PlayFabErrorHandler?.Process(error);
+                            PlayFabErrorHandler.Process(error);
 
                             onFailure();
                         });
                 }
                 catch (Exception exception)
                 {
-                    ExceptionHandler?.Process(exception);
+                    ExceptionHandler.Process(exception);
 
                     onFailure();
                 }
@@ -236,7 +236,7 @@ namespace Creobit.Backend.Store
             {
                 var exception = new NotSupportedException("Steam overlay is disabled!");
 
-                ExceptionHandler?.Process(exception);
+                ExceptionHandler.Process(exception);
 
                 onFailure();
 

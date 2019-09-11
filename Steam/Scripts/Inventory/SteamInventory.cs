@@ -9,15 +9,29 @@ namespace Creobit.Backend.Inventory
     {
         #region IInventory
 
-        async void IInventory.LoadItems(Action onComplete, Action onFailure)
+        void IInventory.LoadCurrencyDefinitions(Action onComplete, Action onFailure)
+        {
+            ExceptionHandler.Process(new NotSupportedException());
+
+            onFailure();
+        }
+
+        void IInventory.LoadCurrencyInstances(Action onComplete, Action onFailure)
+        {
+            ExceptionHandler.Process(new NotSupportedException());
+
+            onFailure();
+        }
+
+        async void IInventory.LoadItemDefinitions(Action onComplete, Action onFailure)
         {
             try
             {
-                var inventoryResult = await Steamworks.SteamInventory.GetAllItemsAsync();
+                var result = await Steamworks.SteamInventory.WaitForDefinitions();
 
-                if (inventoryResult.HasValue)
+                if (result)
                 {
-                    CreateItems();
+                    CreateItemDefinitions();
 
                     onComplete();
                 }
@@ -33,9 +47,60 @@ namespace Creobit.Backend.Inventory
                 onFailure();
             }
 
-            void CreateItems()
+            void CreateItemDefinitions()
             {
-                _items = new List<SteamItem>();
+                _itemDefinitions = new List<SteamItemDefinition>();
+
+                foreach (var (ItemDefinitionId, SteamDefId) in ItemDefinitionMap)
+                {
+                    var inventoryDef = this.FindInventoryDefBySteamDefId(SteamDefId);
+
+                    if (inventoryDef == null)
+                    {
+                        var exception = new Exception($"The InventoryDef is not found for the ItemDefinitionId \"{ItemDefinitionId}\"!");
+
+                        ExceptionHandler.Process(exception);
+
+                        continue;
+                    }
+
+                    var itemDefinition = new SteamItemDefinition(ItemDefinitionId, inventoryDef)
+                    {
+                        Grant = Grant
+                    };
+
+                    _itemDefinitions.Add(new SteamItemDefinition(ItemDefinitionId, inventoryDef));
+                }
+            }
+        }
+
+        async void IInventory.LoadItemInstances(Action onComplete, Action onFailure)
+        {
+            try
+            {
+                var inventoryResult = await Steamworks.SteamInventory.GetAllItemsAsync();
+
+                if (inventoryResult.HasValue)
+                {
+                    CreateItemInstances();
+
+                    onComplete();
+                }
+                else
+                {
+                    onFailure();
+                }
+            }
+            catch (Exception exception)
+            {
+                ExceptionHandler.Process(exception);
+
+                onFailure();
+            }
+
+            void CreateItemInstances()
+            {
+                _itemInstances = new List<SteamItemInstance>();
 
                 foreach (var inventoryItem in Steamworks.SteamInventory.Items)
                 {
@@ -57,70 +122,30 @@ namespace Creobit.Backend.Inventory
                         continue;
                     }
 
-                    var item = new SteamItem(itemDefinition, inventoryItem)
+                    var itemInstance = new SteamItemInstance(itemDefinition, inventoryItem)
                     {
                         Consume = Consume
                     };
 
-                    _items.Add(item);
-                }
-            }
-        }
-
-        async void IInventory.LoadItemDefinitions(Action onComplete, Action onFailure)
-        {
-            try
-            {
-                var result = await Steamworks.SteamInventory.WaitForDefinitions();
-
-                if (result)
-                {
-                    CreateDefinitions();
-
-                    onComplete();
-                }
-                else
-                {
-                    onFailure();
-                }
-            }
-            catch (Exception exception)
-            {
-                ExceptionHandler.Process(exception);
-
-                onFailure();
-            }
-
-            void CreateDefinitions()
-            {
-                _itemDefinitions = new List<SteamItemDefinition>();
-
-                foreach (var (ItemDefinitionId, SteamDefId) in ItemDefinitionMap)
-                {
-                    var inventoryDef = this.FindInventoryDefBySteamDefId(SteamDefId);
-
-                    if (inventoryDef == null)
-                    {
-                        var exception = new Exception($"The InventoryDef is not found for the ItemDefinitionId \"{ItemDefinitionId}\"!");
-
-                        ExceptionHandler.Process(exception);
-
-                        continue;
-                    }
-
-                    _itemDefinitions.Add(new SteamItemDefinition(ItemDefinitionId, inventoryDef));
+                    _itemInstances.Add(itemInstance);
                 }
             }
         }
 
         #endregion
-        #region IInventory<ISteamItemDefinition, ISteamItem>
+        #region IInventory<ICurrencyDefinition, ICurrencyInstance<ICurrencyDefinition>, ISteamItemDefinition, ISteamItemInstance>
 
-        IEnumerable<ISteamItem> IInventory<ISteamItemDefinition, ISteamItem>.Items
-            => (IEnumerable<ISteamItem>)_items
-            ?? Array.Empty<ISteamItem>();
+        IEnumerable<ICurrencyDefinition> IInventory<ICurrencyDefinition, ICurrencyInstance<ICurrencyDefinition>, ISteamItemDefinition, ISteamItemInstance>.CurrencyDefinitions
+            => Array.Empty<ICurrencyDefinition>();
 
-        IEnumerable<ISteamItemDefinition> IInventory<ISteamItemDefinition, ISteamItem>.ItemDefinitions
+        IEnumerable<ICurrencyInstance<ICurrencyDefinition>> IInventory<ICurrencyDefinition, ICurrencyInstance<ICurrencyDefinition>, ISteamItemDefinition, ISteamItemInstance>.CurrencyInstances
+            => Array.Empty<ICurrencyInstance<ICurrencyDefinition>>();
+
+        IEnumerable<ISteamItemInstance> IInventory<ICurrencyDefinition, ICurrencyInstance<ICurrencyDefinition>, ISteamItemDefinition, ISteamItemInstance>.ItemInstances
+            => (IEnumerable<ISteamItemInstance>)_itemInstances
+            ?? Array.Empty<ISteamItemInstance>();
+
+        IEnumerable<ISteamItemDefinition> IInventory<ICurrencyDefinition, ICurrencyInstance<ICurrencyDefinition>, ISteamItemDefinition, ISteamItemInstance>.ItemDefinitions
             => (IEnumerable<ISteamItemDefinition>)_itemDefinitions
             ?? Array.Empty<ISteamItemDefinition>();
 
@@ -141,7 +166,7 @@ namespace Creobit.Backend.Inventory
         #region SteamInventory
 
         private List<SteamItemDefinition> _itemDefinitions;
-        private List<SteamItem> _items;
+        private List<SteamItemInstance> _itemInstances;
 
         private IEnumerable<(string ItemDefinitionId, int SteamDefId)> _itemDefinitionMap;
         private IExceptionHandler _exceptionHandler;
@@ -158,18 +183,18 @@ namespace Creobit.Backend.Inventory
             set => _exceptionHandler = value;
         }
 
-        private async void Consume(SteamItem steamItem, int count, Action onComplete, Action onFailure)
+        private async void Consume(SteamItemInstance itemInstance, uint count, Action onComplete, Action onFailure)
         {
             try
             {
-                var inventoryItem = steamItem.InventoryItem;
-                var inventoryResult = await inventoryItem.ConsumeAsync(count);
+                var inventoryItem = itemInstance.InventoryItem;
+                var inventoryResult = await inventoryItem.ConsumeAsync(Convert.ToInt32(count));
 
                 if (inventoryResult.HasValue)
                 {
                     if (inventoryResult.Value.ItemCount == 0)
                     {
-                        _items.Remove(steamItem);
+                        _itemInstances.Remove(itemInstance);
                     }
 
                     onComplete();
@@ -185,6 +210,13 @@ namespace Creobit.Backend.Inventory
 
                 onFailure();
             }
+        }
+
+        private void Grant(SteamItemDefinition itemDefinition, uint count, Action<IEnumerable<SteamItemInstance>> onComplete, Action onFailure)
+        {
+            ExceptionHandler.Process(new NotSupportedException());
+
+            onFailure();
         }
 
         #endregion

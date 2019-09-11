@@ -5,13 +5,23 @@ using System.Collections.Generic;
 
 namespace Creobit.Backend.Inventory
 {
-    public sealed class SteamItemDefinition : ISteamItemDefinition
+    internal sealed class SteamItemDefinition : ISteamItemDefinition
     {
         #region IItemDefinition
 
-        IEnumerable<(IItemDefinition ItemDefinition, uint Count)> IItemDefinition.BundledItemDefinitions => Array.Empty<(IItemDefinition ItemDefinition, uint Count)>();
+        IEnumerable<(ICurrencyDefinition CurrencyDefinition, uint Count)> IItemDefinition.BundledCurrencyDefinitions
+            => Array.Empty<(ICurrencyDefinition CurrencyDefinition, uint Count)>();
+
+        IEnumerable<(IItemDefinition ItemDefinition, uint Count)> IItemDefinition.BundledItemDefinitions
+            => Array.Empty<(IItemDefinition ItemDefinition, uint Count)>();
 
         string IItemDefinition.Id => Id;
+
+        #endregion
+        #region IItemDefinition<TItemInstance>
+
+        void IItemDefinition<ISteamItemInstance>.Grant(uint count, Action<IEnumerable<ISteamItemInstance>> onComplete, Action onFailure)
+            => Grant(this, count, onComplete, onFailure);
 
         #endregion
         #region ISteamItemDefinition
@@ -21,13 +31,19 @@ namespace Creobit.Backend.Inventory
         #endregion
         #region SteamItemDefinition
 
-        internal readonly string Id;
-        internal readonly InventoryDef InventoryDef;
+        public readonly string Id;
+        public readonly InventoryDef InventoryDef;
 
-        internal SteamItemDefinition(string id, InventoryDef inventoryDef)
+        public SteamItemDefinition(string id, InventoryDef inventoryDef)
         {
             Id = id;
             InventoryDef = inventoryDef;
+        }
+
+        public Action<SteamItemDefinition, uint, Action<IEnumerable<SteamItemInstance>>, Action> Grant
+        {
+            get;
+            set;
         }
 
         #endregion

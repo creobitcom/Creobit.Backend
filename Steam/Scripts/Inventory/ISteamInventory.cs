@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Creobit.Backend.Inventory
 {
-    public interface ISteamInventory : IInventory<ISteamItemDefinition, ISteamItem>
+    public interface ISteamInventory : IInventory<ICurrencyDefinition, ICurrencyInstance<ICurrencyDefinition>, ISteamItemDefinition, ISteamItemInstance>
     {
         #region ISteamInventory
 

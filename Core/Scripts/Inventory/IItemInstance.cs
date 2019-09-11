@@ -2,24 +2,24 @@
 
 namespace Creobit.Backend.Inventory
 {
-    public interface IItem
+    public interface IItemInstance
     {
-        #region IItem
+        #region IItemInstance
 
-        int? RemainingUses
+        uint Count
         {
             get;
         }
 
-        void Consume(int count, Action onComplete, Action onFailure);
+        void Consume(uint count, Action onComplete, Action onFailure);
 
         #endregion
     }
 
-    public interface IItem<out TItemDefinition> : IItem
+    public interface IItemInstance<out TItemDefinition> : IItemInstance
         where TItemDefinition : IItemDefinition
     {
-        #region IItem<TItemDefinition>
+        #region IItemInstance<TItemDefinition>
 
         TItemDefinition ItemDefinition
         {

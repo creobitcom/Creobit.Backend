@@ -4,9 +4,13 @@ using System.Collections.Generic;
 
 namespace Creobit.Backend.Inventory
 {
-    public sealed class SteamPlayFabInventory : IInventory<IItemDefinition, IItem<IItemDefinition>>
+    public sealed class SteamPlayFabInventory : IInventory<ICurrencyDefinition, ICurrencyInstance<ICurrencyDefinition>, IItemDefinition, IItemInstance<IItemDefinition>>
     {
         #region IInventory
+
+        void IInventory.LoadCurrencyDefinitions(Action onComplete, Action onFailure) => PlayFabInventory.LoadCurrencyDefinitions(onComplete, onFailure);
+
+        void IInventory.LoadCurrencyInstances(Action onComplete, Action onFailure) => PlayFabInventory.LoadCurrencyInstances(onComplete, onFailure);
 
         void IInventory.LoadItemDefinitions(Action onComplete, Action onFailure)
         {
@@ -61,12 +65,12 @@ namespace Creobit.Backend.Inventory
             }
         }
 
-        void IInventory.LoadItems(Action onComplete, Action onFailure)
+        void IInventory.LoadItemInstances(Action onComplete, Action onFailure)
         {
             var errorCount = 0;
             var invokeCount = 2;
 
-            PlayFabInventory.LoadItems(
+            PlayFabInventory.LoadItemInstances(
                 () =>
                 {
                     invokeCount -= 1;
@@ -81,7 +85,7 @@ namespace Creobit.Backend.Inventory
                     Handle();
                 });
 
-            SteamInventory.LoadItems(
+            SteamInventory.LoadItemInstances(
                 () =>
                 {
                     invokeCount -= 1;
@@ -115,25 +119,41 @@ namespace Creobit.Backend.Inventory
         }
 
         #endregion
-        #region IInventory<IItemDefinition, IItem<IItemDefinition>>
+        #region IInventory<IItemDefinition, IItemInstance<IItemDefinition>>
 
-        IEnumerable<IItem<IItemDefinition>> IInventory<IItemDefinition, IItem<IItemDefinition>>.Items
+        IEnumerable<ICurrencyDefinition> IInventory<ICurrencyDefinition, ICurrencyInstance<ICurrencyDefinition>, IItemDefinition, IItemInstance<IItemDefinition>>.CurrencyDefinitions
         {
             get
             {
-                foreach (var item in PlayFabInventory.Items)
+                foreach (var currencyDefinition in PlayFabInventory.CurrencyDefinitions)
                 {
-                    yield return item;
+                    yield return currencyDefinition;
                 }
 
-                foreach (var item in SteamInventory.Items)
+                foreach (var currencyDefinition in SteamInventory.CurrencyDefinitions)
                 {
-                    yield return item;
+                    yield return currencyDefinition;
                 }
             }
         }
 
-        IEnumerable<IItemDefinition> IInventory<IItemDefinition, IItem<IItemDefinition>>.ItemDefinitions
+        IEnumerable<ICurrencyInstance<ICurrencyDefinition>> IInventory<ICurrencyDefinition, ICurrencyInstance<ICurrencyDefinition>, IItemDefinition, IItemInstance<IItemDefinition>>.CurrencyInstances
+        {
+            get
+            {
+                foreach (var currencyInstance in PlayFabInventory.CurrencyInstances)
+                {
+                    yield return currencyInstance;
+                }
+
+                foreach (var currencyInstance in SteamInventory.CurrencyInstances)
+                {
+                    yield return currencyInstance;
+                }
+            }
+        }
+
+        IEnumerable<IItemDefinition> IInventory<ICurrencyDefinition, ICurrencyInstance<ICurrencyDefinition>, IItemDefinition, IItemInstance<IItemDefinition>>.ItemDefinitions
         {
             get
             {
@@ -145,6 +165,22 @@ namespace Creobit.Backend.Inventory
                 foreach (var itemDefinition in SteamInventory.ItemDefinitions)
                 {
                     yield return itemDefinition;
+                }
+            }
+        }
+
+        IEnumerable<IItemInstance<IItemDefinition>> IInventory<ICurrencyDefinition, ICurrencyInstance<ICurrencyDefinition>, IItemDefinition, IItemInstance<IItemDefinition>>.ItemInstances
+        {
+            get
+            {
+                foreach (var itemInstance in PlayFabInventory.ItemInstances)
+                {
+                    yield return itemInstance;
+                }
+
+                foreach (var itemInstance in SteamInventory.ItemInstances)
+                {
+                    yield return itemInstance;
                 }
             }
         }
