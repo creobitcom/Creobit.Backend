@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Creobit.Backend.Inventory
 {
-    public interface IPlayFabInventory : IInventory
+    public interface IPlayFabInventory : IInventory<IPlayFabCurrencyDefinition, IPlayFabCurrencyInstance, IPlayFabItemDefinition, IPlayFabItemInstance>
     {
         #region IPlayFabInventory
 
@@ -13,17 +13,22 @@ namespace Creobit.Backend.Inventory
             get;
         }
 
-        IEnumerable<(string DefinitionId, string PlayFabItemId)> DefinitionMap
+        IEnumerable<(string CurrencyDefinitionId, string PlayFabVirtualCurrencyId)> CurrencyDefinitionMap
         {
             get;
         }
 
-        GetCatalogItemsResult GetCatalogItemsResult
+        IEnumerable<(string ItemDefinitionId, string PlayFabItemId)> ItemDefinitionMap
         {
             get;
         }
 
-        GetUserInventoryResult GetUserInventoryResult
+        GetCatalogItemsResult NativeGetCatalogItemsResult
+        {
+            get;
+        }
+
+        GetPlayerCombinedInfoResultPayload NativeGetPlayerCombinedInfoResultPayload
         {
             get;
         }

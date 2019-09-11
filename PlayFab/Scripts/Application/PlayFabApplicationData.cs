@@ -29,14 +29,14 @@ namespace Creobit.Backend.Application
                     },
                     error =>
                     {
-                        PlayFabErrorHandler?.Process(error);
+                        PlayFabErrorHandler.Process(error);
 
                         onFailure();
                     });
             }
             catch (Exception exception)
             {
-                ExceptionHandler?.Process(exception);
+                ExceptionHandler.Process(exception);
 
                 onFailure();
             }

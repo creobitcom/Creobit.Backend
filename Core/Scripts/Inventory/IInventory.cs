@@ -7,19 +7,44 @@ namespace Creobit.Backend.Inventory
     {
         #region IInventory
 
-        IEnumerable<IDefinition> Definitions
+        void LoadCurrencyDefinitions(Action onComplete, Action onFailure);
+
+        void LoadCurrencyInstances(Action onComplete, Action onFailure);
+
+        void LoadItemDefinitions(Action onComplete, Action onFailure);
+
+        void LoadItemInstances(Action onComplete, Action onFailure);
+
+        #endregion
+    }
+
+    public interface IInventory<out TCurrencyDefinition, out TCurrencyInstance, out TItemDefinition, out TItemInstance> : IInventory
+        where TCurrencyDefinition : ICurrencyDefinition
+        where TCurrencyInstance : ICurrencyInstance
+        where TItemDefinition : IItemDefinition
+        where TItemInstance : IItemInstance
+    {
+        #region IInventory<TCurrencyDefinition, TCurrencyInstance, TItemDefinition, TItemInstance>
+
+        IEnumerable<TCurrencyDefinition> CurrencyDefinitions
         {
             get;
         }
 
-        IEnumerable<IItem> Items
+        IEnumerable<TCurrencyInstance> CurrencyInstances
         {
             get;
         }
 
-        void LoadDefinitions(Action onComplete, Action onFailure);
+        IEnumerable<TItemDefinition> ItemDefinitions
+        {
+            get;
+        }
 
-        void LoadItems(Action onComplete, Action onFailure);
+        IEnumerable<TItemInstance> ItemInstances
+        {
+            get;
+        }
 
         #endregion
     }

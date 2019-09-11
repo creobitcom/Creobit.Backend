@@ -3,9 +3,9 @@ using Steamworks;
 
 namespace Creobit.Backend.Inventory
 {
-    public interface ISteamItem : IItem
+    public interface ISteamItemInstance : IItemInstance<ISteamItemDefinition>
     {
-        #region ISteamItem
+        #region ISteamItemInstance
 
         InventoryItem InventoryItem
         {

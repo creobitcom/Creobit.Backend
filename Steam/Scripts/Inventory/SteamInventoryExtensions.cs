@@ -7,13 +7,13 @@ namespace Creobit.Backend.Inventory
     {
         #region SteamInventoryExtensions
 
-        public static string FindDefinitionIdBySteamDefId(this ISteamInventory self, int steamDefId)
+        public static string FindItemDefinitionIdBySteamDefId(this ISteamInventory self, int steamDefId)
         {
-            foreach (var (DefinitionId, SteamDefId) in self.DefinitionMap)
+            foreach (var (ItemDefinitionId, SteamDefId) in self.ItemDefinitionMap)
             {
                 if (SteamDefId == steamDefId)
                 {
-                    return DefinitionId;
+                    return ItemDefinitionId;
                 }
             }
 

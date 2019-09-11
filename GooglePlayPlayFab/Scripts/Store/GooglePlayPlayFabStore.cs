@@ -56,7 +56,7 @@ namespace Creobit.Backend.Store
 
                 var exception = new Exception($"UnityPurchasing initialization failure! InitializationFailureReason: \"{eventArgs.InitializationFailureReason}\"");
 
-                ExceptionHandler?.Process(exception);
+                ExceptionHandler.Process(exception);
 
                 onFailure();
             }
@@ -185,7 +185,7 @@ namespace Creobit.Backend.Store
 
                 var exception = new Exception($"Purchase failure! PurchaseFailureReason: \"{eventArgs.PurchaseFailureReason}\"");
 
-                ExceptionHandler?.Process(exception);
+                ExceptionHandler.Process(exception);
 
                 onFailure();
             }
@@ -200,7 +200,7 @@ namespace Creobit.Backend.Store
             {
                 var exception = new Exception($"The VirtualCurrency is not found for the CurrencyId \"{currencyId}\"!");
 
-                ExceptionHandler?.Process(exception);
+                ExceptionHandler.Process(exception);
 
                 onFailure();
 
@@ -236,14 +236,14 @@ namespace Creobit.Backend.Store
                         },
                         error =>
                         {
-                            PlayFabErrorHandler?.Process(error);
+                            PlayFabErrorHandler.Process(error);
 
                             onFailure();
                         });
                 }
                 catch (Exception exception)
                 {
-                    ExceptionHandler?.Process(exception);
+                    ExceptionHandler.Process(exception);
 
                     onFailure();
                 }
@@ -275,14 +275,14 @@ namespace Creobit.Backend.Store
                     },
                     error =>
                     {
-                        PlayFabErrorHandler?.Process(error);
+                        PlayFabErrorHandler.Process(error);
 
                         onFailure();
                     });
             }
             catch (Exception exception)
             {
-                ExceptionHandler?.Process(exception);
+                ExceptionHandler.Process(exception);
 
                 onFailure();
             }

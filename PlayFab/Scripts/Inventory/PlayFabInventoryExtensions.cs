@@ -9,7 +9,7 @@ namespace Creobit.Backend.Inventory
 
         public static CatalogItem FindCatalogItemByPlayFabItemId(this IPlayFabInventory self, string playFabItemId)
         {
-            var getCatalogItemsResult = self.GetCatalogItemsResult;
+            var getCatalogItemsResult = self.NativeGetCatalogItemsResult;
 
             if (getCatalogItemsResult == null)
             {
@@ -27,13 +27,26 @@ namespace Creobit.Backend.Inventory
             return null;
         }
 
-        public static string FindDefinitionIdByPlayFabItemId(this IPlayFabInventory self, string playFabItemId)
+        public static string FindCurrencyDefinitionIdByPlayFabVirtualCurrencyId(this IPlayFabInventory self, string playFabVirtualCurrencyId)
         {
-            foreach (var (DefinitionId, PlayFabItemId) in self.DefinitionMap)
+            foreach (var (CurrencyDefinitionId, PlayFabVirtualCurrencyId) in self.CurrencyDefinitionMap)
+            {
+                if (PlayFabVirtualCurrencyId == playFabVirtualCurrencyId)
+                {
+                    return CurrencyDefinitionId;
+                }
+            }
+
+            return null;
+        }
+
+        public static string FindItemDefinitionIdByPlayFabItemId(this IPlayFabInventory self, string playFabItemId)
+        {
+            foreach (var (ItemDefinitionId, PlayFabItemId) in self.ItemDefinitionMap)
             {
                 if (PlayFabItemId == playFabItemId)
                 {
-                    return DefinitionId;
+                    return ItemDefinitionId;
                 }
             }
 

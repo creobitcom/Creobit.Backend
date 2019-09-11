@@ -40,14 +40,14 @@ namespace Creobit.Backend.Store
                             errorCount += 1;
                             invokeCount -= 1;
 
-                            PlayFabErrorHandler?.Process(error);
+                            PlayFabErrorHandler.Process(error);
 
                             Handle();
                         });
                 }
                 catch (Exception exception)
                 {
-                    ExceptionHandler?.Process(exception);
+                    ExceptionHandler.Process(exception);
 
                     onFailure();
                 }
@@ -82,14 +82,14 @@ namespace Creobit.Backend.Store
                             errorCount += 1;
                             invokeCount -= 1;
 
-                            PlayFabErrorHandler?.Process(error);
+                            PlayFabErrorHandler.Process(error);
 
                             Handle();
                         });
                 }
                 catch (Exception exception)
                 {
-                    ExceptionHandler?.Process(exception);
+                    ExceptionHandler.Process(exception);
 
                     onFailure();
                 }
@@ -351,7 +351,7 @@ namespace Creobit.Backend.Store
             {
                 var exception = new Exception($"The VirtualCurrency is not found for the CurrencyId \"{currencyId}\"!");
 
-                ExceptionHandler?.Process(exception);
+                ExceptionHandler.Process(exception);
 
                 onFailure();
 
@@ -362,7 +362,7 @@ namespace Creobit.Backend.Store
             {
                 var excetion = new NotSupportedException("Real Currency is not supported!");
 
-                ExceptionHandler?.Process(excetion);
+                ExceptionHandler.Process(excetion);
 
                 onFailure();
             }
@@ -388,14 +388,14 @@ namespace Creobit.Backend.Store
                         },
                         error =>
                         {
-                            PlayFabErrorHandler?.Process(error);
+                            PlayFabErrorHandler.Process(error);
 
                             onFailure();
                         });
                 }
                 catch (Exception exception)
                 {
-                    ExceptionHandler?.Process(exception);
+                    ExceptionHandler.Process(exception);
 
                     onFailure();
                 }

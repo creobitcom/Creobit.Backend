@@ -4,14 +4,9 @@ using System.Collections.Generic;
 
 namespace Creobit.Backend.Inventory
 {
-    public interface ISteamInventory : IInventory
+    public interface ISteamInventory : IInventory<ICurrencyDefinition, ICurrencyInstance<ICurrencyDefinition>, ISteamItemDefinition, ISteamItemInstance>
     {
         #region ISteamInventory
-
-        IEnumerable<(string DefinitionId, int SteamDefId)> DefinitionMap
-        {
-            get;
-        }
 
         InventoryDef[] InventoryDefs
         {
@@ -19,6 +14,11 @@ namespace Creobit.Backend.Inventory
         }
 
         InventoryItem[] InventoryItems
+        {
+            get;
+        }
+
+        IEnumerable<(string ItemDefinitionId, int SteamDefId)> ItemDefinitionMap
         {
             get;
         }

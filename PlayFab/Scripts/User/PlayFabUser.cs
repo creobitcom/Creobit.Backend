@@ -36,14 +36,14 @@ namespace Creobit.Backend.User
                     },
                     error =>
                     {
-                        PlayFabErrorHandler?.Process(error);
+                        PlayFabErrorHandler.Process(error);
 
                         onFailure();
                     });
             }
             catch (Exception exception)
             {
-                ExceptionHandler?.Process(exception);
+                ExceptionHandler.Process(exception);
 
                 onFailure();
             }
@@ -66,14 +66,14 @@ namespace Creobit.Backend.User
                     },
                     error =>
                     {
-                        PlayFabErrorHandler?.Process(error);
+                        PlayFabErrorHandler.Process(error);
 
                         onFailure();
                     });
             }
             catch (Exception exception)
             {
-                ExceptionHandler?.Process(exception);
+                ExceptionHandler.Process(exception);
 
                 onFailure();
             }
@@ -96,14 +96,14 @@ namespace Creobit.Backend.User
                     },
                     error =>
                     {
-                        PlayFabErrorHandler?.Process(error);
+                        PlayFabErrorHandler.Process(error);
 
                         onFailure();
                     });
             }
             catch (Exception exception)
             {
-                ExceptionHandler?.Process(exception);
+                ExceptionHandler.Process(exception);
 
                 onFailure();
             }

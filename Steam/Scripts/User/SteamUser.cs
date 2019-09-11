@@ -14,7 +14,7 @@ namespace Creobit.Backend.User
             {
                 var exception = new NotSupportedException();
 
-                ExceptionHandler?.Process(exception);
+                ExceptionHandler.Process(exception);
 
                 return string.Empty;
             }
@@ -26,7 +26,7 @@ namespace Creobit.Backend.User
         {
             var exception = new NotSupportedException();
 
-            ExceptionHandler?.Process(exception);
+            ExceptionHandler.Process(exception);
 
             onFailure();
         }
@@ -35,7 +35,7 @@ namespace Creobit.Backend.User
         {
             var exception = new NotSupportedException();
 
-            ExceptionHandler?.Process(exception);
+            ExceptionHandler.Process(exception);
 
             onFailure();
         }
@@ -44,7 +44,7 @@ namespace Creobit.Backend.User
         {
             var exception = new NotSupportedException();
 
-            ExceptionHandler?.Process(exception);
+            ExceptionHandler.Process(exception);
 
             onFailure();
         }
