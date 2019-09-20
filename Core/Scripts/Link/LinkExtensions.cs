@@ -28,15 +28,15 @@ namespace Creobit.Backend.Link
             }
         }
 
-        public static async Task<string> RequestLinkKeyAsync(this ILink self, int linkKeyLenght)
+        public static async Task<(string LinkKey, DateTime LinkKeyExpirationTime)> RequestLinkKeyAsync(this ILink self, int linkKeyLenght)
         {
-            var valueResult = default(string);
+            var returnResult = default((string LinkKey, DateTime LinkKeyExpirationTime)?);
             var invokeResult = default(bool?);
 
             self.RequestLinkKey(linkKeyLenght,
-                linkKey =>
+                data =>
                 {
-                    valueResult = linkKey;
+                    returnResult = data;
                     invokeResult = true;
                 },
                 () => invokeResult = false);
@@ -51,7 +51,7 @@ namespace Creobit.Backend.Link
                 throw new InvalidOperationException();
             }
 
-            return valueResult;
+            return returnResult.Value;
         }
 
         #endregion

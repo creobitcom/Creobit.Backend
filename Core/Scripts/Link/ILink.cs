@@ -8,7 +8,7 @@ namespace Creobit.Backend.Link
 
         void Link(string linkKey, Action onComplete, Action onFailure);
 
-        void RequestLinkKey(int linkKeyLenght, Action<string> onComplete, Action onFailure);
+        void RequestLinkKey(int linkKeyLenght, Action<(string LinkKey, DateTime LinkKeyExpirationTime)> onComplete, Action onFailure);
 
         #endregion
     }
