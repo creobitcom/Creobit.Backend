@@ -3,6 +3,8 @@ using Creobit.Backend.Auth;
 using PlayFab;
 using PlayFab.ClientModels;
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using UnityEngine;
 
 namespace Creobit.Backend.Link
@@ -67,7 +69,61 @@ namespace Creobit.Backend.Link
                         },
                         result =>
                         {
-                            CheckAndroidDeviceId();
+                            CheckLinkKeyExpirationTime();
+                        },
+                        error =>
+                        {
+                            PlayFabErrorHandler.Process(error);
+
+                            onFailure();
+                        });
+                }
+                catch (Exception exception)
+                {
+                    ExceptionHandler.Process(exception);
+
+                    onFailure();
+                }
+            }
+
+            void CheckLinkKeyExpirationTime()
+            {
+                try
+                {
+                    PlayFabClientAPI.GetUserData(
+                        new GetUserDataRequest()
+                        {
+                            Keys = new List<string>()
+                            {
+                                LinkKeyExpirationTime
+                            }
+                        },
+                        result =>
+                        {
+                            var data = result.Data;
+
+                            if (data.TryGetValue(LinkKeyExpirationTime, out var record))
+                            {
+                                var now = DateTime.Now;
+                                var expirationTime = DateTime.Parse(record.Value, CultureInfo.InvariantCulture, DateTimeStyles.RoundtripKind);
+
+                                if (now > expirationTime)
+                                {
+                                    resultException = new Exception($"The \"{LinkKey}\" is out of date!");
+
+                                    Restore();
+                                }
+                                else
+                                {
+                                    CheckAndroidDeviceId();
+                                }
+                            }
+                            else
+                            {
+                                resultException = new Exception($"The \"{LinkKeyExpirationTime}\" is not found!");
+
+                                Restore();
+                            }
                         },
                         error =>
                         {
@@ -167,10 +223,13 @@ namespace Creobit.Backend.Link
             }
         }
 
-        void ILink.RequestLinkKey(int linkKeyLenght, Action<string> onComplete, Action onFailure) => PlayFabLink.RequestLinkKey(linkKeyLenght, onComplete, onFailure);
+        void ILink.RequestLinkKey(int linkKeyLenght, Action<(string LinkKey, DateTime LinkKeyExpirationTime)> onComplete, Action onFailure) => PlayFabLink.RequestLinkKey(linkKeyLenght, onComplete, onFailure);
 
         #endregion
         #region IosPlayFabLink
+
+        private const string LinkKey = nameof(LinkKey);
+        private const string LinkKeyExpirationTime = nameof(LinkKeyExpirationTime);
 
         private readonly IPlayFabLink PlayFabLink;
         private readonly IAndroidPlayFabAuth AndroidPlayFabAuth;

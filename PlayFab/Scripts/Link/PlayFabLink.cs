@@ -2,6 +2,8 @@
 using PlayFab;
 using PlayFab.ClientModels;
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace Creobit.Backend.Link
@@ -19,34 +21,11 @@ namespace Creobit.Backend.Link
             onFailure();
         }
 
-        void ILink.RequestLinkKey(int linkKeyLenght, Action<string> onComplete, Action onFailure)
+        void ILink.RequestLinkKey(int linkKeyLenght, Action<(string LinkKey, DateTime LinkKeyExpirationTime)> onComplete, Action onFailure)
         {
-            try
-            {
-                var linkKey = CreateLinkKey(linkKeyLenght);
+            var linkKey = CreateLinkKey(linkKeyLenght);
 
-                PlayFabClientAPI.LinkCustomID(
-                    new LinkCustomIDRequest()
-                    {
-                        CustomId = linkKey
-                    },
-                    result =>
-                    {
-                        onComplete(linkKey);
-                    },
-                    error =>
-                    {
-                        PlayFabErrorHandler.Process(error);
-
-                        onFailure();
-                    });
-            }
-            catch (Exception exception)
-            {
-                ExceptionHandler.Process(exception);
-
-                onFailure();
-            }
+            LinkCustomId();
 
             string CreateLinkKey(int lenght)
             {
@@ -63,13 +42,85 @@ namespace Creobit.Backend.Link
 
                 return stringBuilder.ToString();
             }
+
+            void LinkCustomId()
+            {
+                try
+                {
+                    PlayFabClientAPI.LinkCustomID(
+                        new LinkCustomIDRequest()
+                        {
+                            CustomId = linkKey
+                        },
+                        result =>
+                        {
+                            WriteLinkKeyExpirationTime();
+                        },
+                        error =>
+                        {
+                            PlayFabErrorHandler.Process(error);
+
+                            onFailure();
+                        });
+                }
+                catch (Exception exception)
+                {
+                    ExceptionHandler.Process(exception);
+
+                    onFailure();
+                }
+            }
+
+            void WriteLinkKeyExpirationTime()
+            {
+                try
+                {
+                    var now = DateTime.Now;
+                    var expirationTime = now + TimeSpan.FromSeconds(AvailabilityTime);
+
+                    PlayFabClientAPI.UpdateUserData(
+                        new UpdateUserDataRequest()
+                        {
+                            Data = new Dictionary<string, string>()
+                            {
+                                { LinkKeyExpirationTime, expirationTime.ToString("O", CultureInfo.InvariantCulture) }
+                            },
+                            Permission = UserDataPermission.Private
+                        },
+                        result =>
+                        {
+                            onComplete((linkKey, expirationTime));
+                        },
+                        error =>
+                        {
+                            PlayFabErrorHandler.Process(error);
+
+                            onFailure();
+                        });
+                }
+                catch (Exception exception)
+                {
+                    ExceptionHandler.Process(exception);
+
+                    onFailure();
+                }
+            }
         }
 
         #endregion
         #region PlayFabLink
 
+        private const string LinkKeyExpirationTime = nameof(LinkKeyExpirationTime);
+
+        private float? _availabilityTime;
         private IExceptionHandler _exceptionHandler;
         private IPlayFabErrorHandler _playFabErrorHandler;
+
+        public float AvailabilityTime
+        {
+            get => _availabilityTime ?? 60f;
+            set => _availabilityTime = value;
+        }
 
         public IExceptionHandler ExceptionHandler
         {
