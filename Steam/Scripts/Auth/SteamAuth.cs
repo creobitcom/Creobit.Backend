@@ -19,9 +19,7 @@ namespace Creobit.Backend.Auth
             {
                 if (UApplication.isEditor)
                 {
-                    var exception = new Exception("The Steam is not started!");
-
-                    ExceptionHandler.Process(exception);
+                    ExceptionHandler.Process(new SteamIsNotRunningException());
 
                     onFailure();
                 }
@@ -39,9 +37,9 @@ namespace Creobit.Backend.Auth
 
                 onComplete();
             }
-            catch (Exception exception)
+            catch
             {
-                ExceptionHandler.Process(exception);
+                ExceptionHandler.Process(new SteamIsNotRunningException());
 
                 onFailure();
             }
@@ -71,7 +69,7 @@ namespace Creobit.Backend.Auth
 
         string ISteamAuth.CreateAuthSessionTicket()
         {
-            var authTicket = Steamworks.SteamUser.GetAuthSessionTicket();
+            var authTicket = SteamUser.GetAuthSessionTicket();
             var stringBuilder = new StringBuilder();
 
             foreach (var item in authTicket.Data)
