@@ -1,0 +1,19 @@
+{
+    "name": "Creobit.Backend.AppStore",
+    "references": [
+        "GUID:03e76b878b964554dbbf2ef0df9e850a",
+        "GUID:d54cac2a2bf8e7b42867a7c954a29706"
+    ],
+    "includePlatforms": [
+        "Editor",
+        "iOS",
+        "macOSStandalone"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": []
+}

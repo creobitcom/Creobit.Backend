@@ -1,8 +1,10 @@
 {
     "name": "Creobit.Backend.AppStorePlayFab",
     "references": [
+        "GUID:1493cb6caeb7f744a81901e766ef53e0",
         "GUID:03e76b878b964554dbbf2ef0df9e850a",
         "GUID:429214aaa269ba24dad84efa26c19002",
+        "GUID:d54cac2a2bf8e7b42867a7c954a29706",
         "GUID:e3712bda3d9154148b1501247f1986ab"
     ],
     "includePlatforms": [

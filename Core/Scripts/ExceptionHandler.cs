@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Creobit.Backend
 {
-    public sealed class ExceptionHandler : IExceptionHandler
+    internal sealed class ExceptionHandler : IExceptionHandler
     {
         #region IExceptionHandler
 

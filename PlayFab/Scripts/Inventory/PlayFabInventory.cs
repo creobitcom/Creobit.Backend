@@ -1,459 +1,134 @@
 ﻿#if CREOBIT_BACKEND_PLAYFAB
+using Creobit.Backend.User;
+using Creobit.Backend.Wallet;
 using PlayFab;
 using PlayFab.ClientModels;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 
 namespace Creobit.Backend.Inventory
 {
     public sealed class PlayFabInventory : IPlayFabInventory
     {
-        #region IInventory
+        #region IRefreshable
 
-        void IInventory.LoadCurrencyDefinitions(Action onComplete, Action onFailure)
+        void IRefreshable.Refresh(Action onComplete, Action onFailure)
         {
-            try
+            GetCatalogItems();
+
+            void GetCatalogItems()
             {
-                PlayFabClientAPI.GetPlayerCombinedInfo(
-                    new GetPlayerCombinedInfoRequest()
-                    {
-                        InfoRequestParameters = new GetPlayerCombinedInfoRequestParams()
-                        {
-                            GetUserVirtualCurrency = true
-                        }
-                    },
-                    result =>
-                    {
-                        var infoResultPayload = result.InfoResultPayload;
-
-                        if (_getPlayerCombinedInfoResultPayload == null)
-                        {
-                            _getPlayerCombinedInfoResultPayload = infoResultPayload;
-                        }
-                        else
-                        {
-                            _getPlayerCombinedInfoResultPayload.UserVirtualCurrency = infoResultPayload.UserVirtualCurrency;
-                            _getPlayerCombinedInfoResultPayload.UserVirtualCurrencyRechargeTimes = infoResultPayload.UserVirtualCurrencyRechargeTimes;
-                        }
-
-                        CreateCurrencyDefinitions();
-
-                        onComplete();
-                    },
-                    error =>
-                    {
-                        PlayFabErrorHandler.Process(error);
-
-                        onFailure();
-                    });
-            }
-            catch (Exception exception)
-            {
-                ExceptionHandler.Process(exception);
-
-                onFailure();
-            }
-
-            void CreateCurrencyDefinitions()
-            {
-                var userVirtualCurrency = _getPlayerCombinedInfoResultPayload.UserVirtualCurrency;
-                var userVirtualCurrencyRechargeTimes = _getPlayerCombinedInfoResultPayload.UserVirtualCurrencyRechargeTimes;
-
-                _currencyDefinitions = new List<PlayFabCurrencyDefinition>();
-
-                foreach (var (CurrencyDefinitionId, PlayFabVirtualCurrencyId) in CurrencyDefinitionMap)
+                try
                 {
-                    if (PlayFabVirtualCurrencyId == "RM")
-                    {
-                        continue;
-                    }
+                    PlayFabClientAPI.GetCatalogItems(
+                        new GetCatalogItemsRequest()
+                        {
+                            CatalogVersion = CatalogVersion
+                        },
+                        result =>
+                        {
+                            CatalogItems = result.Catalog;
 
-                    if (!userVirtualCurrency.ContainsKey(PlayFabVirtualCurrencyId))
-                    {
-                        var exception = new Exception($"Invalid entry in the CurrencyDefinitionMap \"({CurrencyDefinitionId}, {PlayFabVirtualCurrencyId})\"!");
+                            GetUserInventory();
+                        },
+                        error =>
+                        {
+                            PlayFabErrorHandler.Process(error);
 
-                        ExceptionHandler.Process(exception);
+                            onFailure();
+                        });
+                }
+                catch (Exception exception)
+                {
+                    ExceptionHandler.Process(exception);
 
-                        continue;
-                    }
-
-                    userVirtualCurrencyRechargeTimes.TryGetValue(PlayFabVirtualCurrencyId, out var virtualCurrencyRechargeTime);
-
-                    var currencyDefinition = new PlayFabCurrencyDefinition(CurrencyDefinitionId, virtualCurrencyRechargeTime)
-                    {
-                        Grant = Grant
-                    };
-
-                    _currencyDefinitions.Add(currencyDefinition);
+                    onFailure();
                 }
             }
-        }
 
-        void IInventory.LoadCurrencyInstances(Action onComplete, Action onFailure)
-        {
-            try
+            void GetUserInventory()
             {
-                PlayFabClientAPI.GetPlayerCombinedInfo(
-                    new GetPlayerCombinedInfoRequest()
-                    {
-                        InfoRequestParameters = new GetPlayerCombinedInfoRequestParams()
-                        {
-                            GetUserVirtualCurrency = true
-                        }
-                    },
-                    result =>
-                    {
-                        var infoResultPayload = result.InfoResultPayload;
-
-                        if (_getPlayerCombinedInfoResultPayload == null)
-                        {
-                            _getPlayerCombinedInfoResultPayload = infoResultPayload;
-                        }
-                        else
-                        {
-                            _getPlayerCombinedInfoResultPayload.UserVirtualCurrency = infoResultPayload.UserVirtualCurrency;
-                            _getPlayerCombinedInfoResultPayload.UserVirtualCurrencyRechargeTimes = infoResultPayload.UserVirtualCurrencyRechargeTimes;
-                        }
-
-                        CreateCurrencyInstances();
-
-                        onComplete();
-                    },
-                    error =>
-                    {
-                        PlayFabErrorHandler.Process(error);
-
-                        onFailure();
-                    });
-            }
-            catch (Exception exception)
-            {
-                ExceptionHandler.Process(exception);
-
-                onFailure();
-            }
-
-            void CreateCurrencyInstances()
-            {
-                _currencyInstances = new List<PlayFabCurrencyInstance>();
-
-                foreach (var entry in _getPlayerCombinedInfoResultPayload.UserVirtualCurrency)
+                try
                 {
-                    var currencyDefinitionId = this.FindCurrencyDefinitionIdByPlayFabVirtualCurrencyId(entry.Key);
+                    PlayFabClientAPI.GetPlayerCombinedInfo(
+                        new GetPlayerCombinedInfoRequest()
+                        {
+                            InfoRequestParameters = new GetPlayerCombinedInfoRequestParams()
+                            {
+                                GetUserInventory = true
+                            }
+                        },
+                        result =>
+                        {
+                            var infoResultPayload = result.InfoResultPayload;
+                            var userInventory = infoResultPayload.UserInventory;
 
-                    if (string.IsNullOrWhiteSpace(currencyDefinitionId))
-                    {
-                        continue;
-                    }
+                            ItemInstances = userInventory.ToDictionary(x => x.ItemInstanceId);
 
-                    var currencyDefinition = this.FindCurrencyDefinitionByCurrencyDefinitionId(currencyDefinitionId);
+                            UpdateItems();
 
-                    if (currencyDefinition == null)
-                    {
-                        var exception = new Exception($"The CurrencyDefinition is not found for the СurrencyDefinitionId \"{currencyDefinitionId}\"!");
+                            onComplete();
+                        },
+                        error =>
+                        {
+                            PlayFabErrorHandler.Process(error);
 
-                        ExceptionHandler.Process(exception);
-
-                        continue;
-                    }
-
-                    var currencyInstance = new PlayFabCurrencyInstance(currencyDefinition, Convert.ToUInt32(entry.Value))
-                    {
-                        Consume = Consume
-                    };
-
-                    _currencyInstances.Add(currencyInstance);
+                            onFailure();
+                        });
                 }
-            }
-        }
-
-        void IInventory.LoadItemDefinitions(Action onComplete, Action onFailure)
-        {
-            try
-            {
-                PlayFabClientAPI.GetCatalogItems(
-                    new GetCatalogItemsRequest()
-                    {
-                        CatalogVersion = CatalogVersion
-                    },
-                    result =>
-                    {
-                        _getCatalogItemsResult = result;
-
-                        CreateItemDefinitions();
-
-                        onComplete();
-                    },
-                    error =>
-                    {
-                        PlayFabErrorHandler.Process(error);
-
-                        onFailure();
-                    });
-            }
-            catch (Exception exception)
-            {
-                ExceptionHandler.Process(exception);
-
-                onFailure();
-            }
-
-            void CreateItemDefinitions()
-            {
-                _itemDefinitions = new List<PlayFabItemDefinition>();
-
-                foreach (var (ItemDefinitionId, PlayFabItemId) in ItemDefinitionMap)
+                catch (Exception exception)
                 {
-                    var catalogItem = this.FindCatalogItemByPlayFabItemId(PlayFabItemId);
+                    ExceptionHandler.Process(exception);
 
-                    if (catalogItem == null)
-                    {
-                        var exception = new Exception($"Invalid entry in the ItemDefinitionMap \"({ItemDefinitionId}, {PlayFabItemId})\"!");
-
-                        ExceptionHandler.Process(exception);
-
-                        continue;
-                    }
-
-                    var itemDefinition = new PlayFabItemDefinition(ItemDefinitionId, catalogItem)
-                    {
-                        Grant = Grant
-                    };
-
-                    _itemDefinitions.Add(itemDefinition);
-                }
-
-                foreach (var itemDefinition in _itemDefinitions)
-                {
-                    var catalogItem = itemDefinition.CatalogItem;
-                    var bundle = catalogItem.Bundle;
-
-                    if (bundle != null && bundle.BundledItems != null)
-                    {
-                        if (bundle.BundledVirtualCurrencies != null)
-                        {
-                            InitializeBundledCurrencyDefinitions(itemDefinition, bundle.BundledVirtualCurrencies);
-                        }
-
-                        if (bundle.BundledItems != null)
-                        {
-                            InitializeBundledItemDefinitions(itemDefinition, bundle.BundledItems);
-                        }
-                    }
-
-                    var container = catalogItem.Container;
-
-                    if (container != null && container.ItemContents != null)
-                    {
-                        if (container.VirtualCurrencyContents != null)
-                        {
-                            InitializeBundledCurrencyDefinitions(itemDefinition, container.VirtualCurrencyContents);
-                        }
-
-                        if (container.ItemContents != null)
-                        {
-                            InitializeBundledItemDefinitions(itemDefinition, container.ItemContents);
-                        }
-                    }
-                }
-
-                void InitializeBundledCurrencyDefinitions(PlayFabItemDefinition itemDefinition, Dictionary<string, uint> bundledPlayFabVirtualCurrencies)
-                {
-                    foreach (var bundledPlayFabVirtualCurrency in bundledPlayFabVirtualCurrencies)
-                    {
-                        var currencyDefinitionId = this.FindCurrencyDefinitionIdByPlayFabVirtualCurrencyId(bundledPlayFabVirtualCurrency.Key);
-
-                        if (string.IsNullOrWhiteSpace(currencyDefinitionId))
-                        {
-                            continue;
-                        }
-
-                        var currencyDefinition = this.FindCurrencyDefinitionByCurrencyDefinitionId(currencyDefinitionId);
-
-                        if (currencyDefinition == null)
-                        {
-                            var exception = new Exception($"The CurrencyDefinition is not found for the CurrencyDefinitionId \"{currencyDefinitionId}\"!");
-
-                            ExceptionHandler.Process(exception);
-
-                            continue;
-                        }
-
-                        itemDefinition.AddBundledCurrencyDefinition(currencyDefinition, bundledPlayFabVirtualCurrency.Value);
-                    }
-                }
-
-                void InitializeBundledItemDefinitions(PlayFabItemDefinition itemDefinition, IEnumerable<string> bundledPlayFabItemIds)
-                {
-                    foreach (var bundledPlayFabItemId in bundledPlayFabItemIds)
-                    {
-                        var bundledItemDefinitionId = this.FindItemDefinitionIdByPlayFabItemId(bundledPlayFabItemId);
-
-                        if (string.IsNullOrWhiteSpace(bundledItemDefinitionId))
-                        {
-                            continue;
-                        }
-
-                        var bundledItemDefinition = this.FindItemDefinitionByItemDefinitionId(bundledItemDefinitionId);
-
-                        if (bundledItemDefinition == null)
-                        {
-                            var exception = new Exception($"The ItemDefinition is not found for the ItemDefinitionId \"{bundledItemDefinitionId}\"!");
-
-                            ExceptionHandler.Process(exception);
-
-                            continue;
-                        }
-
-                        itemDefinition.AddBundledItemDefinition(bundledItemDefinition, 1);
-                    }
-                }
-            }
-        }
-
-        void IInventory.LoadItemInstances(Action onComplete, Action onFailure)
-        {
-            try
-            {
-                PlayFabClientAPI.GetPlayerCombinedInfo(
-                    new GetPlayerCombinedInfoRequest()
-                    {
-                        InfoRequestParameters = new GetPlayerCombinedInfoRequestParams()
-                        {
-                            GetUserInventory = true
-                        }
-                    },
-                    result =>
-                    {
-                        var infoResultPayload = result.InfoResultPayload;
-
-                        if (_getPlayerCombinedInfoResultPayload == null)
-                        {
-                            _getPlayerCombinedInfoResultPayload = infoResultPayload;
-                        }
-                        else
-                        {
-                            _getPlayerCombinedInfoResultPayload.UserInventory = infoResultPayload.UserInventory;
-                        }
-
-                        CreateItemInstances();
-
-                        onComplete();
-                    },
-                    error =>
-                    {
-                        PlayFabErrorHandler.Process(error);
-
-                        onFailure();
-                    });
-            }
-            catch (Exception exception)
-            {
-                ExceptionHandler.Process(exception);
-
-                onFailure();
-            }
-
-            void CreateItemInstances()
-            {
-                _itemInstances = new List<PlayFabItemInstance>();
-
-                foreach (var entry in _getPlayerCombinedInfoResultPayload.UserInventory)
-                {
-                    var itemDefinitionId = this.FindItemDefinitionIdByPlayFabItemId(entry.ItemId);
-
-                    if (string.IsNullOrWhiteSpace(itemDefinitionId))
-                    {
-                        continue;
-                    }
-
-                    var itemDefinition = this.FindItemDefinitionByItemDefinitionId(itemDefinitionId);
-
-                    if (itemDefinition == null)
-                    {
-                        var exception = new Exception($"The ItemDefinition is not found for the ItemDefinitionId \"{itemDefinitionId}\"!");
-
-                        ExceptionHandler.Process(exception);
-
-                        continue;
-                    }
-
-                    var itemInstance = new PlayFabItemInstance(itemDefinition, entry)
-                    {
-                        Consume = Consume
-                    };
-
-                    _itemInstances.Add(itemInstance);
+                    onFailure();
                 }
             }
         }
 
         #endregion
-        #region IInventory<IPlayFabCurrencyDefinition, IPlayFabCurrencyInstance, IPlayFabItemDefinition, IPlayFabItemInstance>
+        #region IInventory
 
-        IEnumerable<IPlayFabCurrencyDefinition> IInventory<IPlayFabCurrencyDefinition, IPlayFabCurrencyInstance, IPlayFabItemDefinition, IPlayFabItemInstance>.CurrencyDefinitions
-            => (IEnumerable<IPlayFabCurrencyDefinition>)_currencyDefinitions
-            ?? Array.Empty<IPlayFabCurrencyDefinition>();
-
-        IEnumerable<IPlayFabCurrencyInstance> IInventory<IPlayFabCurrencyDefinition, IPlayFabCurrencyInstance, IPlayFabItemDefinition, IPlayFabItemInstance>.CurrencyInstances
-            => (IEnumerable<IPlayFabCurrencyInstance>)_currencyInstances
-            ?? Array.Empty<IPlayFabCurrencyInstance>();
-
-        IEnumerable<IPlayFabItemDefinition> IInventory<IPlayFabCurrencyDefinition, IPlayFabCurrencyInstance, IPlayFabItemDefinition, IPlayFabItemInstance>.ItemDefinitions
-            => (IEnumerable<IPlayFabItemDefinition>)_itemDefinitions
-            ?? Array.Empty<IPlayFabItemDefinition>();
-
-        IEnumerable<IPlayFabItemInstance> IInventory<IPlayFabCurrencyDefinition, IPlayFabCurrencyInstance, IPlayFabItemDefinition, IPlayFabItemInstance>.ItemInstances
-            => (IEnumerable<IPlayFabItemInstance>)_itemInstances
-            ?? Array.Empty<IPlayFabItemInstance>();
+        IEnumerable<IItem> IInventory.Items => Items;
 
         #endregion
         #region IPlayFabInventory
 
         string IPlayFabInventory.CatalogVersion => CatalogVersion;
 
-        IEnumerable<(string CurrencyDefinitionId, string PlayFabVirtualCurrencyId)> IPlayFabInventory.CurrencyDefinitionMap => CurrencyDefinitionMap;
+        IEnumerable<(string ItemId, string PlayFabItemId)> IPlayFabInventory.ItemMap => ItemMap;
 
-        IEnumerable<(string ItemDefinitionId, string PlayFabItemId)> IPlayFabInventory.ItemDefinitionMap => ItemDefinitionMap;
+        IPlayFabUser IPlayFabInventory.User => User;
 
-        GetCatalogItemsResult IPlayFabInventory.NativeGetCatalogItemsResult => _getCatalogItemsResult;
-
-        GetPlayerCombinedInfoResultPayload IPlayFabInventory.NativeGetPlayerCombinedInfoResultPayload => _getPlayerCombinedInfoResultPayload;
+        IPlayFabWallet IPlayFabInventory.Wallet => Wallet;
 
         #endregion
         #region PlayFabInventory
 
         private readonly string CatalogVersion;
+        private readonly IPlayFabUser User;
+        private readonly IPlayFabWallet Wallet;
 
-        private List<PlayFabCurrencyDefinition> _currencyDefinitions;
-        private List<PlayFabCurrencyInstance> _currencyInstances;
-        private List<PlayFabItemDefinition> _itemDefinitions;
-        private List<PlayFabItemInstance> _itemInstances;
-
-        private GetCatalogItemsResult _getCatalogItemsResult;
-        private GetPlayerCombinedInfoResultPayload _getPlayerCombinedInfoResultPayload;
-
-        private IEnumerable<(string CurrencyDefinitionId, string PlayFabVirtualCurrencyId)> _currencyDefinitionMap;
-        private IEnumerable<(string ItemDefinitionId, string PlayFabItemId)> _itemDefinitionMap;
+        private IList<CatalogItem> _catalogItems;
+        private IDictionary<string, ItemInstance> _itemInstances;
+        private IList<IItem> _items;
 
         private IExceptionHandler _exceptionHandler;
+        private IEnumerable<(string ItemId, string PlayFabItemId)> _itemMap;
         private IPlayFabErrorHandler _playFabErrorHandler;
 
-        public PlayFabInventory(string catalogVersion)
+        public PlayFabInventory(string catalogVersion, IPlayFabUser user, IPlayFabWallet wallet)
         {
-            CatalogVersion = catalogVersion;
+            CatalogVersion = string.IsNullOrWhiteSpace(catalogVersion) ? null : catalogVersion;
+            User = user;
+            Wallet = wallet;
         }
 
-        public IEnumerable<(string CurrencyDefinitionId, string PlayFabVirtualCurrencyId)> CurrencyDefinitionMap
+        private IList<CatalogItem> CatalogItems
         {
-            get => _currencyDefinitionMap ?? Array.Empty<ValueTuple<string, string>>();
-            set => _currencyDefinitionMap = value;
-        }
-
-        public IEnumerable<(string ItemDefinitionId, string PlayFabItemId)> ItemDefinitionMap
-        {
-            get => _itemDefinitionMap ?? Array.Empty<ValueTuple<string, string>>();
-            set => _itemDefinitionMap = value;
+            get => _catalogItems ?? Array.Empty<CatalogItem>();
+            set => _catalogItems = value;
         }
 
         public IExceptionHandler ExceptionHandler
@@ -462,39 +137,61 @@ namespace Creobit.Backend.Inventory
             set => _exceptionHandler = value;
         }
 
+        private IDictionary<string, ItemInstance> ItemInstances
+        {
+            get => _itemInstances ?? new ReadOnlyDictionary<string, ItemInstance>(new Dictionary<string, ItemInstance>());
+            set => _itemInstances = value;
+        }
+
+        public IEnumerable<(string ItemId, string PlayFabItemId)> ItemMap
+        {
+            get => _itemMap ?? Array.Empty<(string ItemId, string PlayFabItemId)>();
+            set => _itemMap = value;
+        }
+
+        private IList<IItem> Items
+        {
+            get => _items ?? Array.Empty<IItem>();
+            set => _items = value;
+        }
+
         public IPlayFabErrorHandler PlayFabErrorHandler
         {
             get => _playFabErrorHandler ?? Backend.PlayFabErrorHandler.Default;
             set => _playFabErrorHandler = value;
         }
 
-        private void Consume(PlayFabCurrencyInstance currencyInstance, uint count, Action onComplete, Action onFailure)
+        private void Consume(IItem item, uint count, Action onComplete, Action onFailure)
         {
-            ExceptionHandler.Process(new NotSupportedException());
+            var playFabItemId = this.FindPlayFabItemId(item.Id);
 
-            onFailure();
-        }
+            if (playFabItemId == null)
+            {
+                var exception = new Exception($"The PlayFabItemId is not found for the ItemId \"{item.Id}\"!");
 
-        private void Consume(PlayFabItemInstance itemInstance, uint count, Action onComplete, Action onFailure)
-        {
+                ExceptionHandler.Process(exception);
+
+                onFailure();
+
+                return;
+            }
+
+
             try
             {
-                var nativeItemInstance = itemInstance.ItemInstance;
+                var itemInstance = ((PlayFabItem)item).ItemInstance;
 
                 PlayFabClientAPI.ConsumeItem(
                     new ConsumeItemRequest()
                     {
                         ConsumeCount = Convert.ToInt32(count),
-                        ItemInstanceId = nativeItemInstance.ItemInstanceId
+                        ItemInstanceId = itemInstance.ItemInstanceId
                     },
                     result =>
                     {
-                        nativeItemInstance.RemainingUses = result.RemainingUses;
+                        itemInstance.RemainingUses = result.RemainingUses;
 
-                        if (nativeItemInstance.RemainingUses == 0)
-                        {
-                            _itemInstances.Remove(itemInstance);
-                        }
+                        UpdatePlayFabItems(new ItemInstance[] { itemInstance });
 
                         onComplete();
                     },
@@ -513,18 +210,279 @@ namespace Creobit.Backend.Inventory
             }
         }
 
-        private void Grant(PlayFabCurrencyDefinition currencyDefinition, uint count, Action<PlayFabCurrencyInstance> onComplete, Action onFailure)
+        private void Grant(IItem item, uint count, Action onComplete, Action onFailure)
         {
+#if ENABLE_PLAYFABADMIN_API
+            var playFabItemId = this.FindPlayFabItemId(item.Id);
+
+            if (playFabItemId == null)
+            {
+                var exception = new Exception($"The PlayFabItemId is not found for the ItemId \"{item.Id}\"!");
+
+                ExceptionHandler.Process(exception);
+
+                onFailure();
+
+                return;
+            }
+
+            try
+            {
+                PlayFabAdminAPI.GrantItemsToUsers(
+                    new PlayFab.AdminModels.GrantItemsToUsersRequest()
+                    {
+                        CatalogVersion = CatalogVersion,
+                        ItemGrants = new List<PlayFab.AdminModels.ItemGrant>()
+                        {
+                            new PlayFab.AdminModels.ItemGrant()
+                            {
+                                ItemId = playFabItemId,
+                                PlayFabId = User.Id
+                            }
+                        }
+                    },
+                    result =>
+                    {
+                        var itemInstances = result.ItemGrantResults
+                            .Select(
+                                x =>
+                                {
+                                    return new ItemInstance()
+                                    {
+                                        Annotation = x.Annotation,
+                                        BundleContents = x.BundleContents,
+                                        BundleParent = x.BundleParent,
+                                        CatalogVersion = x.CatalogVersion,
+                                        CustomData = x.CustomData,
+                                        DisplayName = x.DisplayName,
+                                        Expiration = x.Expiration,
+                                        ItemClass = x.ItemClass,
+                                        ItemId = x.ItemId,
+                                        ItemInstanceId = x.ItemInstanceId,
+                                        PurchaseDate = x.PurchaseDate,
+                                        RemainingUses = x.RemainingUses,
+                                        UnitCurrency = x.UnitCurrency,
+                                        UnitPrice = x.UnitPrice,
+                                        UsesIncrementedBy = x.UsesIncrementedBy
+                                    };
+                                });
+
+                        UpdatePlayFabItems(itemInstances);
+
+                        onComplete();
+                    },
+                    error =>
+                    {
+                        PlayFabErrorHandler.Process(error);
+
+                        onFailure();
+                    });
+            }
+            catch (Exception exception)
+            {
+                ExceptionHandler.Process(exception);
+
+                onFailure();
+            }
+#else
             ExceptionHandler.Process(new NotSupportedException());
 
             onFailure();
+#endif
         }
 
-        private void Grant(PlayFabItemDefinition itemDefinition, uint count, Action<IEnumerable<PlayFabItemInstance>> onComplete, Action onFailure)
+        internal void UpdateItems()
         {
-            ExceptionHandler.Process(new NotSupportedException());
+            Items = CreateItems();
 
-            onFailure();
+            List<IItem> CreateItems()
+            {
+                var items = new List<IItem>();
+
+                foreach (var (ItemId, PlayFabItemId) in ItemMap)
+                {
+                    var catalogItem = CatalogItems.FirstOrDefault(x => x.ItemId == PlayFabItemId);
+
+                    if (catalogItem == null)
+                    {
+                        var exception = new Exception($"The CatalogItem is not found for the PlayFabItemId \"{PlayFabItemId}\"!");
+
+                        ExceptionHandler.Process(exception);
+
+                        continue;
+                    }
+
+                    var bundledCurrencies = CreateBundledCurrencies(catalogItem);
+                    var bundledItems = CreateBundledItems(catalogItem);
+                    var itemInstances = ItemInstances.Values
+                        .Where(x => x.ItemId == PlayFabItemId);
+
+                    if (itemInstances.Any())
+                    {
+                        foreach (var itemInstance in itemInstances)
+                        {
+                            var item = items
+                                .Cast<PlayFabItem>()
+                                .FirstOrDefault(x => x.ItemInstance == itemInstance) as PlayFabItem;
+
+                            if (item == null)
+                            {
+                                item = items
+                                    .FirstOrDefault(x => x.Id == ItemId && ((IPlayFabItem)x).ItemInstance == null) as PlayFabItem;
+                            }
+
+                            if (item == null)
+                            {
+                                item = new PlayFabItem(ItemId);
+                            }
+
+                            item.BundledCurrencies = bundledCurrencies;
+                            item.BundledItems = bundledItems;
+                            item.CatalogItem = catalogItem;
+                            item.ConsumeDelegate = Consume;
+                            item.Count = itemInstance.RemainingUses ?? 1;
+                            item.GrantDelegate = Grant;
+                            item.ItemInstance = itemInstance;
+
+                            items.Add(item);
+                        }
+                    }
+                    else
+                    {
+                        var item = items
+                            .FirstOrDefault(x => x.Id == ItemId) as PlayFabItem ?? new PlayFabItem(ItemId);
+
+                        item.BundledCurrencies = bundledCurrencies;
+                        item.BundledItems = bundledItems;
+                        item.CatalogItem = catalogItem;
+                        item.ConsumeDelegate = null;
+                        item.Count = 0;
+                        item.GrantDelegate = Grant;
+                        item.ItemInstance = null;
+
+                        items.Add(item);
+                    }
+                }
+
+                return items;
+            }
+
+            List<ICurrency> CreateBundledCurrencies(CatalogItem catalogItem)
+            {
+                var bundledCurrencies = new List<ICurrency>();
+
+                if (catalogItem.Bundle != null)
+                {
+                    var bundle = catalogItem.Bundle;
+
+                    if (bundle.BundledVirtualCurrencies != null)
+                    {
+                        Cache(bundle.BundledVirtualCurrencies);
+                    }
+                }
+
+                if (catalogItem.Container != null)
+                {
+                    var container = catalogItem.Container;
+
+                    if (container.VirtualCurrencyContents != null)
+                    {
+                        Cache(container.VirtualCurrencyContents);
+                    }
+                }
+
+                return bundledCurrencies;
+
+                void Cache(IDictionary<string, uint> virtualCurrency)
+                {
+                    foreach (var (CurrencyId, PlayFabVirtualCurrencyId) in Wallet.CurrencyMap)
+                    {
+                        if (PlayFabVirtualCurrencyId == "RM")
+                        {
+                            continue;
+                        }
+
+                        if (!virtualCurrency.TryGetValue(PlayFabVirtualCurrencyId, out var count))
+                        {
+                            continue;
+                        }
+
+                        var currency = new Wallet.Currency(CurrencyId)
+                        {
+                            Count = Convert.ToInt32(count)
+                        };
+
+                        bundledCurrencies.Add(currency);
+                    }
+                }
+            }
+
+            List<IItem> CreateBundledItems(CatalogItem catalogItem)
+            {
+                var bundledItems = new List<IItem>();
+
+                if (catalogItem.Bundle != null)
+                {
+                    var bundle = catalogItem.Bundle;
+
+                    if (bundle.BundledItems != null)
+                    {
+                        Cache(bundle.BundledItems);
+                    }
+                }
+
+                if (catalogItem.Container != null)
+                {
+                    var container = catalogItem.Container;
+
+                    if (container.ItemContents != null)
+                    {
+                        Cache(container.ItemContents);
+                    }
+                }
+
+                return bundledItems;
+
+                void Cache(List<string> itemIds)
+                {
+                    var itemIdGroups = itemIds
+                        .GroupBy(x => x)
+                        .ToDictionary(x => x.Key, y => y.Count());
+
+                    foreach (var (ItemId, PlayFabItemId) in ItemMap)
+                    {
+                        if (!itemIdGroups.TryGetValue(PlayFabItemId, out var count))
+                        {
+                            continue;
+                        }
+
+                        var item = new PlayFabItem(ItemId)
+                        {
+                            CatalogItem = catalogItem,
+                            Count = count
+                        };
+
+                        bundledItems.Add(item);
+                    }
+                }
+            }
+        }
+
+        internal void UpdatePlayFabItems(IEnumerable<ItemInstance> itemInstances)
+        {
+            foreach (var itemInstance in itemInstances)
+            {
+                if (ItemInstances.TryGetValue(itemInstance.ItemInstanceId, out var currentItemInstances))
+                {
+                    currentItemInstances.RemainingUses = itemInstance.RemainingUses;
+                }
+                else
+                {
+                    ItemInstances[itemInstance.ItemInstanceId] = itemInstance;
+                }
+            }
+
+            UpdateItems();
         }
 
         #endregion

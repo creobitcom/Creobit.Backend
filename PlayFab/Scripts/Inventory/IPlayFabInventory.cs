@@ -1,10 +1,11 @@
 ﻿#if CREOBIT_BACKEND_PLAYFAB
-using PlayFab.ClientModels;
+using Creobit.Backend.User;
 using System.Collections.Generic;
+using Creobit.Backend.Wallet;
 
 namespace Creobit.Backend.Inventory
 {
-    public interface IPlayFabInventory : IInventory<IPlayFabCurrencyDefinition, IPlayFabCurrencyInstance, IPlayFabItemDefinition, IPlayFabItemInstance>
+    public interface IPlayFabInventory : IInventory
     {
         #region IPlayFabInventory
 
@@ -13,22 +14,17 @@ namespace Creobit.Backend.Inventory
             get;
         }
 
-        IEnumerable<(string CurrencyDefinitionId, string PlayFabVirtualCurrencyId)> CurrencyDefinitionMap
+        IEnumerable<(string ItemId, string PlayFabItemId)> ItemMap
         {
             get;
         }
 
-        IEnumerable<(string ItemDefinitionId, string PlayFabItemId)> ItemDefinitionMap
+        IPlayFabUser User
         {
             get;
         }
 
-        GetCatalogItemsResult NativeGetCatalogItemsResult
-        {
-            get;
-        }
-
-        GetPlayerCombinedInfoResultPayload NativeGetPlayerCombinedInfoResultPayload
+        IPlayFabWallet Wallet
         {
             get;
         }

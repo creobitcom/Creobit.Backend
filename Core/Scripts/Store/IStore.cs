@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Creobit.Backend.Store
 {
-    public interface IStore
+    public interface IStore : IRefreshable
     {
         #region IStore
 
@@ -12,7 +11,10 @@ namespace Creobit.Backend.Store
             get;
         }
 
-        void LoadProducts(Action onComplete, Action onFailure);
+        IEnumerable<ISubscription> Subscriptions
+        {
+            get;
+        }
 
         #endregion
     }

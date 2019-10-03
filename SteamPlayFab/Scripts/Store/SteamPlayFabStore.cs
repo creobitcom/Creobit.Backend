@@ -8,91 +8,38 @@ using UApplication = UnityEngine.Application;
 
 namespace Creobit.Backend.Store
 {
-    public sealed class SteamPlayFabStore : IPlayFabStore
+    public sealed class SteamPlayFabStore : PlayFabStore
     {
-        #region IStore
+        #region PlayFabStore
 
-        IEnumerable<IProduct> IStore.Products => PlayFabStore.Products;
-
-        void IStore.LoadProducts(Action onComplete, Action onFailure)
+        protected override void PurchaseViaRealCurrency(IProduct product, Action onComplete, Action onFailure)
         {
-            PlayFabStore.LoadProducts(
-                () =>
-                {
-                    ModifyProducts();
-
-                    onComplete();
-                }, onFailure);
-
-            void ModifyProducts()
+            if (UApplication.isEditor)
             {
-                foreach (PlayFabProduct product in PlayFabStore.Products)
-                {
-                    product.Purchase = Purchase;
-                }
+                var exception = new NotSupportedException("Steam purchases is don't work in the Editor!");
+
+                ExceptionHandler.Process(exception);
+
+                onFailure();
+
+                return;
             }
-        }
 
-        #endregion
-        #region IPlayFabStore
-
-        string IPlayFabStore.CatalogVersion => PlayFabStore.CatalogVersion;
-
-        string IPlayFabStore.StoreId => PlayFabStore.StoreId;
-
-        IEnumerable<(string CurrencyId, string VirtualCurrency)> IPlayFabStore.CurrencyMap => PlayFabStore.CurrencyMap;
-
-        IEnumerable<(string ProductId, string ItemId)> IPlayFabStore.ProductMap => PlayFabStore.ProductMap;
-
-        #endregion
-        #region SteamPlayFabStore
-
-        private readonly IPlayFabStore PlayFabStore;
-
-        private IExceptionHandler _exceptionHandler;
-        private IPlayFabErrorHandler _playFabErrorHandler;
-
-        public SteamPlayFabStore(IPlayFabStore playFabStore)
-        {
-            PlayFabStore = playFabStore;
-        }
-
-        public IExceptionHandler ExceptionHandler
-        {
-            get => _exceptionHandler ?? Backend.ExceptionHandler.Default;
-            set => _exceptionHandler = value;
-        }
-
-        public IPlayFabErrorHandler PlayFabErrorHandler
-        {
-            get => _playFabErrorHandler ?? Backend.PlayFabErrorHandler.Default;
-            set => _playFabErrorHandler = value;
-        }
-
-        private void Purchase(IProduct product, string currencyId, Action onComplete, Action onFailure)
-        {
-            var itemId = this.GetItemId(product.Id);
-            var virtualCurrency = this.GetVirtualCurrency(currencyId);
-
-            if (virtualCurrency == "RM")
+            if (!SteamUtils.IsOverlayEnabled)
             {
-                if (UApplication.isEditor)
-                {
-                    var exception = new NotSupportedException("Steam purchases is don't work in the Editor!");
+                var exception = new NotSupportedException("Steam overlay is disabled!");
 
-                    ExceptionHandler.Process(exception);
+                ExceptionHandler.Process(exception);
 
-                    onFailure();
+                onFailure();
 
-                    return;
-                }
-
-                StartPurchase();
+                return;
             }
-            else
-            {
-                PurchaseItem();
-            }
+
+            var playFabProduct = (IPlayFabProduct)product;
+            var catalogItem = playFabProduct.CatalogItem;
+
+            StartPurchase();
 
             void StartPurchase()
             {
@@ -101,16 +48,16 @@ namespace Creobit.Backend.Store
                     PlayFabClientAPI.StartPurchase(
                         new StartPurchaseRequest()
                         {
-                            CatalogVersion = PlayFabStore.CatalogVersion,
+                            CatalogVersion = CatalogVersion,
                             Items = new List<ItemPurchaseRequest>()
                             {
                                 new ItemPurchaseRequest()
                                 {
-                                    ItemId = itemId,
+                                    ItemId = catalogItem.ItemId,
                                     Quantity = 1
                                 }
                             },
-                            StoreId = PlayFabStore.StoreId
+                            StoreId = StoreId
                         },
                         result =>
                         {
@@ -194,60 +141,22 @@ namespace Creobit.Backend.Store
                     onFailure();
                 }
             }
+        }
 
-            void PurchaseItem()
-            {
-                var price = product.GetPrice(currencyId) ?? 0;
+        #endregion
+        #region SteamPlayFabStore
 
-                try
-                {
-                    PlayFabClientAPI.PurchaseItem(
-                        new PurchaseItemRequest()
-                        {
-                            CatalogVersion = PlayFabStore.CatalogVersion,
-                            ItemId = itemId,
-                            Price = Convert.ToInt32(price),
-                            StoreId = PlayFabStore.StoreId,
-                            VirtualCurrency = virtualCurrency
-                        },
-                        result =>
-                        {
-                            onComplete();
-                        },
-                        error =>
-                        {
-                            PlayFabErrorHandler.Process(error);
-
-                            onFailure();
-                        });
-                }
-                catch (Exception exception)
-                {
-                    ExceptionHandler.Process(exception);
-
-                    onFailure();
-                }
-            }
+        public SteamPlayFabStore(string catalogVersion, string storeId) : base(catalogVersion, storeId)
+        {
         }
 
         private void WaitMicroTxnAuthorizationResponse(Action onComplete, Action onFailure)
         {
-            if (!SteamUtils.IsOverlayEnabled)
-            {
-                var exception = new NotSupportedException("Steam overlay is disabled!");
-
-                ExceptionHandler.Process(exception);
-
-                onFailure();
-
-                return;
-            }
-
-            Steamworks.SteamUser.OnMicroTxnAuthorizationResponse += OnMicroTxnAuthorizationResponse;
+            SteamUser.OnMicroTxnAuthorizationResponse += OnMicroTxnAuthorizationResponse;
 
             void OnMicroTxnAuthorizationResponse(AppId appid, ulong orderId, bool userAuthorized)
             {
-                Steamworks.SteamUser.OnMicroTxnAuthorizationResponse -= OnMicroTxnAuthorizationResponse;
+                SteamUser.OnMicroTxnAuthorizationResponse -= OnMicroTxnAuthorizationResponse;
 
                 if (userAuthorized)
                 {

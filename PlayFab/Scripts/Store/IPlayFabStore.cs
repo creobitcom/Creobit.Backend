@@ -12,19 +12,17 @@ namespace Creobit.Backend.Store
             get;
         }
 
+        IEnumerable<(string PriceId, string PlayFabVirtualCurrencyId)> PriceMap
+        {
+            get;
+        }
+
+        IEnumerable<(string ProductId, string PlayFabItemId)> ProductMap
+        {
+            get;
+        }
+
         string StoreId
-        {
-            get;
-        }
-
-        // VirtualCurrency - PlayFab
-        IEnumerable<(string CurrencyId, string VirtualCurrency)> CurrencyMap
-        {
-            get;
-        }
-
-        // ItemId - PlayFab
-        IEnumerable<(string ProductId, string ItemId)> ProductMap
         {
             get;
         }
