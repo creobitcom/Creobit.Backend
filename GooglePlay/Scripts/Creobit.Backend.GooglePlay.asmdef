@@ -2,6 +2,7 @@
     "name": "Creobit.Backend.GooglePlay",
     "references": [
         "GUID:03e76b878b964554dbbf2ef0df9e850a",
+        "GUID:d54cac2a2bf8e7b42867a7c954a29706",
         "GUID:7952556a92975f444a2f1e0158e74c31"
     ],
     "includePlatforms": [

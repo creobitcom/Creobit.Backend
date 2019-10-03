@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Creobit.Backend
 {
-    public sealed class PlayFabErrorHandler : IPlayFabErrorHandler
+    internal sealed class PlayFabErrorHandler : IPlayFabErrorHandler
     {
         #region IPlayFabErrorHandler
 
