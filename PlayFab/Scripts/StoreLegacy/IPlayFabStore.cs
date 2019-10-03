@@ -1,7 +1,7 @@
 ﻿#if CREOBIT_BACKEND_PLAYFAB
 using System.Collections.Generic;
 
-namespace Creobit.Backend.Store
+namespace Creobit.Backend.StoreLegacy
 {
     public interface IPlayFabStore : IStore
     {

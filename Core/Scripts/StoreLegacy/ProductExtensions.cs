@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace Creobit.Backend.Store
+namespace Creobit.Backend.StoreLegacy
 {
     public static class ProductExtensions
     {

@@ -1,4 +1,4 @@
-﻿#if CREOBIT_BACKEND_APPSTORE && CREOBIT_BACKEND_PLAYFAB && (UNITY_STANDALONE_OSX || UNITY_IOS)
+﻿#if CREOBIT_BACKEND_GOOGLEPLAY && CREOBIT_BACKEND_PLAYFAB && UNITY_ANDROID
 using PlayFab;
 using PlayFab.ClientModels;
 using System;
@@ -6,9 +6,9 @@ using System.Collections.Generic;
 using UnityEngine.Purchasing;
 using UProduct = UnityEngine.Purchasing.Product;
 
-namespace Creobit.Backend.Store
+namespace Creobit.Backend.StoreLegacy
 {
-    public sealed class AppStorePlayFabStore : IPlayFabStore
+    public sealed class GooglePlayPlayFabStore : IPlayFabStore
     {
         #region IStore
 
@@ -18,18 +18,9 @@ namespace Creobit.Backend.Store
         {
             var purchasingModule = StandardPurchasingModule.Instance();
             var builder = ConfigurationBuilder.Instance(purchasingModule);
-            var appleConfiguration = builder.Configure<IAppleConfiguration>();
+            var googlePlayConfiguration = builder.Configure<IGooglePlayConfiguration>();
 
-            if (!appleConfiguration.canMakePayments)
-            {
-                var exception = new NotSupportedException($"\"{nameof(IAppleConfiguration)}.{nameof(IAppleConfiguration.canMakePayments)}\" is false!");
-
-                ExceptionHandler.Process(exception);
-
-                onFailure();
-
-                return;
-            }
+            googlePlayConfiguration.SetPublicKey(PublicKey);
 
             foreach (var (ProductId, ProductType) in ProductMap)
             {
@@ -47,7 +38,6 @@ namespace Creobit.Backend.Store
                 _storeListener.Initialized -= OnInitialized;
                 _storeListener.InitializeFailed -= OnInitializeFailed;
 
-                _appleExtensions = eventArgs.AppleExtensions;
                 _storeController = eventArgs.StoreController;
 
                 PlayFabStore.LoadProducts(
@@ -112,20 +102,21 @@ namespace Creobit.Backend.Store
         IEnumerable<(string ProductId, string ItemId)> IPlayFabStore.ProductMap => PlayFabStore.ProductMap;
 
         #endregion
-        #region AppStorePlayFabStore
+        #region GooglePlayPlayFabStore
 
         private readonly IPlayFabStore PlayFabStore;
+        private readonly string PublicKey;
 
-        private IAppleExtensions _appleExtensions;
         private IStoreController _storeController;
         private StoreListener _storeListener;
 
         private IExceptionHandler _exceptionHandler;
         private IPlayFabErrorHandler _playFabErrorHandler;
 
-        public AppStorePlayFabStore(IPlayFabStore playFabStore)
+        public GooglePlayPlayFabStore(IPlayFabStore playFabStore, string publicKey)
         {
             PlayFabStore = playFabStore;
+            PublicKey = publicKey;
         }
 
         public IExceptionHandler ExceptionHandler
@@ -140,18 +131,12 @@ namespace Creobit.Backend.Store
             set => _playFabErrorHandler = value;
         }
 
-        // ProductId - AppStore
+        // ProductId - GooglePlay
         public IEnumerable<(string ProductId, ProductType ProductType)> ProductMap
         {
             get;
             set;
         } = Array.Empty<ValueTuple<string, ProductType>>();
-
-        public string PublicKey
-        {
-            get;
-            set;
-        }
 
         private UProduct FindProduct(string productId)
         {
@@ -227,7 +212,7 @@ namespace Creobit.Backend.Store
                 InitiatePurchase(itemId,
                     purchasedProduct =>
                     {
-                        ValidateIOSReceipt(purchasedProduct, onComplete, onFailure);
+                        ValidateGooglePlayPurchase(purchasedProduct, onComplete, onFailure);
                     }, onFailure);
             }
             else
@@ -265,20 +250,24 @@ namespace Creobit.Backend.Store
             }
         }
 
-        private void ValidateIOSReceipt(UProduct purchasedProduct, Action onComplete, Action onFailure)
+        private void ValidateGooglePlayPurchase(UProduct purchasedProduct, Action onComplete, Action onFailure)
         {
             var metadata = purchasedProduct.metadata;
-            var receiptData = _appleExtensions.GetTransactionReceiptForProduct(purchasedProduct);
+            var receipt = MiniJson.JsonDecode(purchasedProduct.receipt) as Dictionary<string, object>;
+            var payload = MiniJson.JsonDecode(receipt["Payload"] as string) as Dictionary<string, object>;
+            var json = payload["json"] as string;
+            var signature = payload["signature"] as string;
 
             try
             {
-                PlayFabClientAPI.ValidateIOSReceipt(
-                    new ValidateIOSReceiptRequest()
+                PlayFabClientAPI.ValidateGooglePlayPurchase(
+                    new ValidateGooglePlayPurchaseRequest()
                     {
                         CatalogVersion = PlayFabStore.CatalogVersion,
                         CurrencyCode = metadata.isoCurrencyCode,
-                        PurchasePrice = Convert.ToInt32(metadata.localizedPrice * 100m),
-                        ReceiptData = receiptData
+                        PurchasePrice = Convert.ToUInt32(metadata.localizedPrice * 100m),
+                        ReceiptJson = json,
+                        Signature = signature
                     },
                     result =>
                     {
@@ -351,12 +340,12 @@ namespace Creobit.Backend.Store
         {
             #region InitializedEventArgs
 
-            public readonly IAppleExtensions AppleExtensions;
+            public readonly IExtensionProvider ExtensionProvider;
             public readonly IStoreController StoreController;
 
             public InitializedEventArgs(IStoreController controller, IExtensionProvider provider)
             {
-                AppleExtensions = provider.GetExtension<IAppleExtensions>();
+                ExtensionProvider = provider;
                 StoreController = controller;
             }
 

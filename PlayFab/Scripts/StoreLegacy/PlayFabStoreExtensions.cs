@@ -1,5 +1,5 @@
 ﻿#if CREOBIT_BACKEND_PLAYFAB
-namespace Creobit.Backend.Store
+namespace Creobit.Backend.StoreLegacy
 {
     public static class PlayFabStoreExtensions
     {

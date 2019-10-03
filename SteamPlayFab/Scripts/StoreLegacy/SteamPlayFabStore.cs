@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using UApplication = UnityEngine.Application;
 
-namespace Creobit.Backend.Store
+namespace Creobit.Backend.StoreLegacy
 {
     public sealed class SteamPlayFabStore : IPlayFabStore
     {
