@@ -147,7 +147,7 @@ namespace Creobit.Backend.Store
             var subscriptionInfo = subscriptionManager.getSubscriptionInfo();
             var expireDate = subscriptionInfo.getExpireDate();
 
-            return expireDate.ToLocalTime();
+            return expireDate;
         }
 
         private bool IsCanceled(ISubscription subscription)
