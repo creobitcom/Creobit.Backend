@@ -1,5 +1,5 @@
 # Документация
-[Wiki](https://github.com/Creobit-Ltd/Creobit.Backend/wiki)
+[Wiki](https://github.com/creobitcom/Creobit.Backend/wiki)
 
 # Лицензия
-[MIT](https://github.com/Creobit-Ltd/Creobit.Backend/blob/master/LICENSE.md)
+[MIT](https://github.com/creobitcom/Creobit.Backend/blob/master/LICENSE.md)
