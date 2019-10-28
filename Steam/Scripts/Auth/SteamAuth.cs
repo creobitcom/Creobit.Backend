@@ -15,7 +15,7 @@ namespace Creobit.Backend.Auth
 
         void IAuth.Login(Action onComplete, Action onFailure)
         {
-            if (SteamClient.RestartAppIfNecessary(AppId))
+            if (RestartAppIfNecessary && SteamClient.RestartAppIfNecessary(AppId))
             {
                 if (UApplication.isEditor)
                 {
@@ -117,6 +117,12 @@ namespace Creobit.Backend.Auth
             get => _exceptionHandler ?? Backend.ExceptionHandler.Default;
             set => _exceptionHandler = value;
         }
+
+        public bool RestartAppIfNecessary
+        {
+            get;
+            set;
+        } = true;
 
         private void DestroyAuthTickets()
         {
