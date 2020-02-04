@@ -1,4 +1,4 @@
-﻿#if CREOBIT_BACKEND_PLAYFAB && CREOBIT_BACKEND_STEAM && UNITY_STANDALONE
+#if CREOBIT_BACKEND_PLAYFAB && CREOBIT_BACKEND_STEAM && UNITY_STANDALONE
 using PlayFab;
 using PlayFab.ClientModels;
 using Steamworks;
@@ -12,7 +12,7 @@ namespace Creobit.Backend.Store
     {
         #region PlayFabStore
 
-        protected override void PurchaseViaRealCurrency(IProduct product, Action onComplete, Action onFailure)
+        protected override void PurchaseViaRealCurrency(IPurchasableItem purchasableProduct, Action onComplete, Action onFailure)
         {
             if (UApplication.isEditor)
             {
@@ -36,7 +36,7 @@ namespace Creobit.Backend.Store
                 return;
             }
 
-            var playFabProduct = (IPlayFabProduct)product;
+            var playFabProduct = (IPlayFabProduct)purchasableProduct;
             var catalogItem = playFabProduct.CatalogItem;
 
             StartPurchase();

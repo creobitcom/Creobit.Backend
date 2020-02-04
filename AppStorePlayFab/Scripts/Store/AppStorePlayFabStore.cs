@@ -1,4 +1,4 @@
-﻿#if CREOBIT_BACKEND_APPSTORE && CREOBIT_BACKEND_PLAYFAB && CREOBIT_BACKEND_UNITY && (UNITY_STANDALONE_OSX || UNITY_IOS)
+#if CREOBIT_BACKEND_APPSTORE && CREOBIT_BACKEND_PLAYFAB && CREOBIT_BACKEND_UNITY && (UNITY_STANDALONE_OSX || UNITY_IOS)
 using PlayFab;
 using PlayFab.ClientModels;
 using System;
@@ -99,7 +99,7 @@ namespace Creobit.Backend.Store
 
             product.PurchaseDelegate = Purchase;
 
-            void Purchase(IProduct unityProduct, Action onComplete, Action onFailure)
+            void Purchase(IPurchasableItem unityProduct, Action onComplete, Action onFailure)
             {
                 purchaseDelegate(unityProduct,
                     () =>

@@ -1,8 +1,8 @@
-﻿using System;
+using System;
 
 namespace Creobit.Backend.Store
 {
-    public interface ISubscription : IIdentifiable, IPurchasable
+    public interface ISubscription : IPurchasableItem
     {
         #region ISubscription
 

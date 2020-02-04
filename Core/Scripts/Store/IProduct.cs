@@ -1,6 +1,6 @@
-﻿namespace Creobit.Backend.Store
+namespace Creobit.Backend.Store
 {
-    public interface IProduct : IIdentifiable, IPurchasable
+    public interface IProduct : IPurchasableItem
     {
     }
 }

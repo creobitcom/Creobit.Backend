@@ -1,4 +1,4 @@
-﻿#if CREOBIT_BACKEND_PLAYFAB
+#if CREOBIT_BACKEND_PLAYFAB
 using PlayFab;
 using PlayFab.ClientModels;
 using System;
@@ -177,17 +177,17 @@ namespace Creobit.Backend.Store
             set => _subscriptions = value;
         }
 
-        protected virtual void PurchaseViaRealCurrency(IProduct product, Action onComplete, Action onFailure)
+        protected virtual void PurchaseViaRealCurrency(IPurchasableItem purchasableItem, Action onComplete, Action onFailure)
         {
             ExceptionHandler.Process(new NotSupportedException());
 
             onFailure();
         }
 
-        protected virtual void PurchaseViaVirtualCurrency(IProduct product, Action onComplete, Action onFailure)
+        protected virtual void PurchaseViaVirtualCurrency(IPurchasableItem purchasableItem, Action onComplete, Action onFailure)
         {
-            var playFabProduct = (IPlayFabProduct)product;
-            var playFabPrice = (IPlayFabPrice)product.Price;
+            var playFabProduct = (IPlayFabProduct)purchasableItem;
+            var playFabPrice = (IPlayFabPrice)purchasableItem.Price;
             var catalogItem = playFabProduct.CatalogItem;
 
             try

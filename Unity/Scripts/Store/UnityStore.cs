@@ -1,4 +1,4 @@
-﻿#if CREOBIT_BACKEND_UNITY
+#if CREOBIT_BACKEND_UNITY
 using System;
 using System.Collections.Generic;
 using UnityEngine.Purchasing;
@@ -201,9 +201,9 @@ namespace Creobit.Backend.Store
             return subscribed == Result.True;
         }
 
-        private void Purchase(IProduct product, Action onComplete, Action onFailure)
+        private void Purchase(IPurchasableItem purchasableItem, Action onComplete, Action onFailure)
         {
-            var unityProduct = (IUnityProduct)product;
+            var unityProduct = (IUnityProduct)purchasableItem;
 
             _storeListener.ProcessPurchase += OnProcessPurchase;
             _storeListener.PurchaseFailed += OnPurchaseFailed;
@@ -215,7 +215,7 @@ namespace Creobit.Backend.Store
                 _storeListener.ProcessPurchase -= OnProcessPurchase;
                 _storeListener.PurchaseFailed -= OnPurchaseFailed;
 
-                ((UnityProduct)product).NativeProduct = eventArgs.NativeProduct;
+                ((UnityProduct)purchasableItem).NativeProduct = eventArgs.NativeProduct;
 
                 onComplete();
             }
