@@ -201,7 +201,7 @@ namespace Creobit.Backend.Store
             return subscribed == Result.True;
         }
 
-        private void Purchase(IPurchasableItem purchasableItem, Action onComplete, Action onFailure)
+        private void PurchaseProduct(IPurchasableItem purchasableItem, Action onComplete, Action onFailure)
         {
             var unityProduct = (IUnityProduct)purchasableItem;
 
@@ -233,7 +233,7 @@ namespace Creobit.Backend.Store
             }
         }
 
-        private void Purchase(ISubscription subscription, Action onComplete, Action onFailure)
+        private void PurchaseSubscription(IPurchasableItem subscription, Action onComplete, Action onFailure)
         {
             var unitySubscription = (IUnitySubscription)subscription;
 
@@ -296,7 +296,7 @@ namespace Creobit.Backend.Store
                     var product = new UnityProduct(ProductId, price)
                     {
                         NativeProduct = nativeProduct,
-                        PurchaseDelegate = Purchase
+                        PurchaseDelegate = PurchaseProduct
                     };
 
                     products.Add(product);
@@ -312,7 +312,7 @@ namespace Creobit.Backend.Store
 
             List<ISubscription> CreateSubscriptions()
             {
-                var subscription = new List<ISubscription>();
+                var subscriptions = new List<ISubscription>();
                 var nativeProducts = StoreController.products;
 
                 foreach (var (SubscriptionId, NativeProductId) in SubscriptionMap)
@@ -331,20 +331,20 @@ namespace Creobit.Backend.Store
                     var metadata = nativeProduct.metadata;
                     var value = Convert.ToUInt32(metadata.localizedPrice * 100m);
                     var price = new Price(null, metadata.isoCurrencyCode, value);
-                    var product = new UnitySubscription(SubscriptionId, price)
+                    var subscription = new UnitySubscription(SubscriptionId, price)
                     {
                         NativeProduct = nativeProduct,
                         GetExpireDateDelegate = GetExpireDate,
                         IsCanceledDelegate = IsCanceled,
                         IsExpiredDelegate = IsExpired,
                         IsSubscribedDelegate = IsSubscribed,
-                        PurchaseDelegate = Purchase
+                        PurchaseDelegate = PurchaseSubscription
                     };
 
-                    subscription.Add(product);
+                    subscriptions.Add(subscription);
                 }
 
-                return subscription;
+                return subscriptions;
             }
         }
 
