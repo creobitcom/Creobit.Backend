@@ -1,4 +1,4 @@
-﻿#if CREOBIT_BACKEND_GOOGLEPLAY && CREOBIT_BACKEND_PLAYFAB && CREOBIT_BACKEND_UNITY && UNITY_ANDROID
+#if CREOBIT_BACKEND_GOOGLEPLAY && CREOBIT_BACKEND_PLAYFAB && CREOBIT_BACKEND_UNITY && UNITY_ANDROID
 using PlayFab;
 using PlayFab.ClientModels;
 using System;
@@ -100,12 +100,12 @@ namespace Creobit.Backend.Store
 
             product.PurchaseDelegate = Purchase;
 
-            void Purchase(IProduct unityProduct, Action onComplete, Action onFailure)
+            void Purchase(IPurchasableItem purchasableProduct, Action onComplete, Action onFailure)
             {
-                purchaseDelegate(unityProduct,
+                purchaseDelegate(purchasableProduct,
                     () =>
                     {
-                        var nativeProduct = ((IUnityProduct)unityProduct).NativeProduct;
+                        var nativeProduct = ((IUnityProduct)purchasableProduct).NativeProduct;
 
                         Validate(nativeProduct);
                     }, onFailure);
