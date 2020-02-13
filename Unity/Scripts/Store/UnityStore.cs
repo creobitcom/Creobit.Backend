@@ -1,4 +1,8 @@
 #if CREOBIT_BACKEND_UNITY
+#if CREOBIT_BACKEND_IOS
+using System.Linq;
+using UnityEngine.Purchasing.Security;
+#endif
 using System;
 using System.Collections.Generic;
 using UnityEngine.Purchasing;
@@ -201,6 +205,23 @@ namespace Creobit.Backend.Store
             return subscribed == Result.True;
         }
 
+        private bool IsTrial(ISubscription subscription, string nativeProductId)
+        {
+#if CREOBIT_BACKEND_IOS && !UNITY_EDITOR
+            //https://forum.unity.com/threads/closed-how-do-i-track-auto-renewing-subscriptions.476293/?_ga=2.180162407.2122364283.1581505031-936382686.1578988334
+            var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
+            var appleConfig = builder.Configure<IAppleConfiguration>();
+            var receiptData = System.Convert.FromBase64String(appleConfig.appReceipt);
+            var appleReceipt = new AppleReceiptParser().Parse(receiptData);
+
+            return !appleReceipt.inAppPurchaseReceipts
+                .Where(receipt => receipt.productID == nativeProductId)
+                .Any(receipt => receipt.isFreeTrial != 0 || receipt.isIntroductoryPricePeriod != 0);
+#else
+            return false;
+#endif
+        }
+
         private void PurchaseProduct(IPurchasableItem purchasableItem, Action onComplete, Action onFailure)
         {
             var unityProduct = (IUnityProduct)purchasableItem;
@@ -338,6 +359,7 @@ namespace Creobit.Backend.Store
                         IsCanceledDelegate = IsCanceled,
                         IsExpiredDelegate = IsExpired,
                         IsSubscribedDelegate = IsSubscribed,
+                        IsTrialDelegate = item => IsTrial(item, NativeProductId),
                         PurchaseDelegate = PurchaseSubscription
                     };
 

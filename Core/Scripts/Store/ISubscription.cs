@@ -26,6 +26,11 @@ namespace Creobit.Backend.Store
             get;
         }
 
+        bool IsIntroductoryOffer
+        {
+            get;
+        }
+
         #endregion
     }
 }
