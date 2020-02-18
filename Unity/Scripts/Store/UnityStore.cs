@@ -1,8 +1,13 @@
 #if CREOBIT_BACKEND_UNITY
+#if CREOBIT_BACKEND_IOS
+using System.Linq;
+using UnityEngine.Purchasing.Security;
+#endif
 using System;
 using System.Collections.Generic;
 using UnityEngine.Purchasing;
 using NativeProduct = UnityEngine.Purchasing.Product;
+using UnityEngine;
 
 namespace Creobit.Backend.Store
 {
@@ -201,6 +206,47 @@ namespace Creobit.Backend.Store
             return subscribed == Result.True;
         }
 
+        //According to Unity:
+        //iOS subscription receipts are stored within IAppleConfiguration.
+        //Google subscription receipts are stored individually per corresponding product.
+        //https://forum.unity.com/threads/closed-how-do-i-track-auto-renewing-subscriptions.476293/?_ga=2.180162407.2122364283.1581505031-936382686.1578988334
+        private bool IsTrial(ISubscription subscription, string nativeProductId)
+        {
+#if CREOBIT_BACKEND_IOS
+            var receipts = GetReceipts(nativeProductId);
+            return !receipts.Any(receipt => receipt.isFreeTrial != 0 || receipt.isIntroductoryPricePeriod != 0);
+#else
+            return false;
+#endif
+        }
+
+#if CREOBIT_BACKEND_IOS
+        private IEnumerable<AppleInAppPurchaseReceipt> GetReceipts(string nativeProductId)
+        {
+            try
+            {
+                var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
+                var appleConfig = builder.Configure<IAppleConfiguration>();
+                var appReceipt = appleConfig.appReceipt;
+                if (string.IsNullOrWhiteSpace(appReceipt))
+                {
+                    Debug.LogWarning("No app receipt");
+                    return Enumerable.Empty<AppleInAppPurchaseReceipt>();
+                }
+
+                var receiptData = Convert.FromBase64String(appReceipt);
+                var appleReceipt = new AppleReceiptParser().Parse(receiptData);
+
+                return appleReceipt.inAppPurchaseReceipts?.Where(receipt => receipt.productID == nativeProductId);
+            }
+            catch (Exception error)
+            {
+                Debug.LogErrorFormat("Failed to GetReceipts: {0}", error.Message);
+                return Enumerable.Empty<AppleInAppPurchaseReceipt>();
+            }
+        }
+#endif
+
         private void PurchaseProduct(IPurchasableItem purchasableItem, Action onComplete, Action onFailure)
         {
             var unityProduct = (IUnityProduct)purchasableItem;
@@ -338,6 +384,7 @@ namespace Creobit.Backend.Store
                         IsCanceledDelegate = IsCanceled,
                         IsExpiredDelegate = IsExpired,
                         IsSubscribedDelegate = IsSubscribed,
+                        IsTrialDelegate = item => IsTrial(item, NativeProductId),
                         PurchaseDelegate = PurchaseSubscription
                     };
 

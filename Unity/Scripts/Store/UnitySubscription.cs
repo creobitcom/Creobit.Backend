@@ -3,23 +3,21 @@ using NativeProduct = UnityEngine.Purchasing.Product;
 
 namespace Creobit.Backend.Store
 {
-    internal sealed class UnitySubscription : Subscription, IUnitySubscription
+    internal sealed partial class UnitySubscription : Subscription, IUnitySubscription
     {
         #region IUnitySubscription
 
-        NativeProduct IUnitySubscription.NativeProduct => NativeProduct;
+        public NativeProduct NativeProduct
+        {
+            get;
+            set;
+        }
 
         #endregion
         #region UnitySubscription
 
         public UnitySubscription(string id, IPrice price) : base(id, price)
         {
-        }
-
-        public NativeProduct NativeProduct
-        {
-            get;
-            set;
         }
 
         #endregion

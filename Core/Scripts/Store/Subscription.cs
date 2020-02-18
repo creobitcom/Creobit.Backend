@@ -34,6 +34,8 @@ namespace Creobit.Backend.Store
 
         bool ISubscription.IsSubscribed => IsSubscribedDelegate(this);
 
+        bool ISubscription.IsIntroductoryOffer => IsTrialDelegate(this);
+
         #endregion
         #region Subscription
 
@@ -46,6 +48,7 @@ namespace Creobit.Backend.Store
         private Func<ISubscription, bool> _isCanceledDelegate;
         private Func<ISubscription, bool> _isExpiredDelegate;
         private Func<ISubscription, bool> _isSubscribedDelegate;
+        private Func<ISubscription, bool> _isTrialDelegate;
 
         public Func<ISubscription, DateTime?> GetExpireDateDelegate
         {
@@ -71,6 +74,12 @@ namespace Creobit.Backend.Store
             set => _isSubscribedDelegate = value;
         }
 
+        public Func<ISubscription, bool> IsTrialDelegate
+        {
+            get => _isTrialDelegate ?? IsTrial;
+            set => _isTrialDelegate = value;
+        }
+
         private DateTime? GetExpireDate(ISubscription subscription)
         {
             return null;
@@ -87,6 +96,11 @@ namespace Creobit.Backend.Store
         }
 
         private bool IsSubscribed(ISubscription subscription)
+        {
+            return false;
+        }
+
+        private bool IsTrial(ISubscription subscription)
         {
             return false;
         }
