@@ -11,7 +11,7 @@ namespace Creobit.Backend.Auth
             get;
         }
 
-        void Login(Action onComplete, Action onFailure);
+        void Login(bool doCreateAccount, Action onComplete, Action onFailure);
 
         void Logout(Action onComplete, Action onFailure);
 

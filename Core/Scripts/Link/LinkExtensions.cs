@@ -9,7 +9,7 @@ namespace Creobit.Backend.Link
 
         private const int MillisecondsDelay = 10;
 
-        public static async Task LinkAsync(this ILink self, string linkKey)
+        public static async Task LinkAsync(this ILinkCode self, string linkKey)
         {
             var invokeResult = default(bool?);
 
@@ -28,7 +28,7 @@ namespace Creobit.Backend.Link
             }
         }
 
-        public static async Task<(string LinkKey, DateTime LinkKeyExpirationTime)> RequestLinkKeyAsync(this ILink self, int linkKeyLenght)
+        public static async Task<(string LinkKey, DateTime LinkKeyExpirationTime)> RequestLinkKeyAsync(this ILinkCode self, int linkKeyLenght)
         {
             var returnResult = default((string LinkKey, DateTime LinkKeyExpirationTime)?);
             var invokeResult = default(bool?);

@@ -11,7 +11,7 @@ namespace Creobit.Backend.Auth
 
         bool IAuth.IsLoggedIn => PlayFabAuth.IsLoggedIn && SteamAuth.IsLoggedIn;
 
-        void IAuth.Login(Action onComplete, Action onFailure)
+        void IAuth.Login(bool doCreateAccount, Action onComplete, Action onFailure)
         {
             SteamLogin();
 

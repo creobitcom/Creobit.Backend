@@ -9,11 +9,11 @@ using UnityEngine;
 
 namespace Creobit.Backend.Link
 {
-    public sealed class AndroidPlayFabLink : IPlayFabLink
+    public sealed class AndroidPlayFabLink : ILinkCode
     {
         #region ILink
 
-        void ILink.Link(string linkKey, Action onComplete, Action onFailure)
+        void ILinkCode.Link(string linkKey, Action onComplete, Action onFailure)
         {
             var resultException = default(Exception);
             var sourceLoginResult = AndroidPlayFabAuth.LoginResult;
@@ -223,7 +223,7 @@ namespace Creobit.Backend.Link
             }
         }
 
-        void ILink.RequestLinkKey(int linkKeyLenght, Action<(string LinkKey, DateTime LinkKeyExpirationTime)> onComplete, Action onFailure) => PlayFabLink.RequestLinkKey(linkKeyLenght, onComplete, onFailure);
+        void ILinkCode.RequestLinkKey(int linkKeyLenght, Action<(string LinkKey, DateTime LinkKeyExpirationTime)> onComplete, Action onFailure) => PlayFabLink.RequestLinkKey(linkKeyLenght, onComplete, onFailure);
 
         #endregion
         #region IosPlayFabLink

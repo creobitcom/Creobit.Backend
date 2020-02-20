@@ -2,7 +2,7 @@
 
 namespace Creobit.Backend.Link
 {
-    public interface ILink
+    public interface ILinkCode
     {
         #region ILink
 

@@ -12,7 +12,7 @@ namespace Creobit.Backend.Link
     {
         #region ILink
 
-        void ILink.Link(string linkKey, Action onComplete, Action onFailure)
+        void ILinkCode.Link(string linkKey, Action onComplete, Action onFailure)
         {
             var exception = new NotSupportedException();
 
@@ -21,7 +21,7 @@ namespace Creobit.Backend.Link
             onFailure();
         }
 
-        void ILink.RequestLinkKey(int linkKeyLenght, Action<(string LinkKey, DateTime LinkKeyExpirationTime)> onComplete, Action onFailure)
+        void ILinkCode.RequestLinkKey(int linkKeyLenght, Action<(string LinkKey, DateTime LinkKeyExpirationTime)> onComplete, Action onFailure)
         {
             var linkKey = CreateLinkKey(linkKeyLenght);
 

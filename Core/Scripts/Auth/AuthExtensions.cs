@@ -9,13 +9,24 @@ namespace Creobit.Backend.Auth
 
         private const int MillisecondsDelay = 10;
 
-        public static async Task LoginAsync(this IAuth self)
+        /// <summary>
+        /// An extension method that allows backward compatibility.
+        /// </summary>
+        public static void Login(this IAuth self, Action onComplete, Action onFailure)
+        {
+            self.Login(true, onComplete, onFailure);
+        }
+
+        public static async Task LoginAsync(this IAuth self, bool doCreateAccount = true)
         {
             var invokeResult = default(bool?);
 
-            self.Login(
+            self.Login
+            (
+                doCreateAccount,
                 () => invokeResult = true,
-                () => invokeResult = false);
+                () => invokeResult = false
+            );
 
             while (!invokeResult.HasValue)
             {

@@ -11,7 +11,7 @@ namespace Creobit.Backend.Auth
 
         bool IAuth.IsLoggedIn => PlayFabClientAPI.IsClientLoggedIn();
 
-        void IAuth.Login(Action onComplete, Action onFailure)
+        void IAuth.Login(bool doCreateAccount, Action onComplete, Action onFailure)
         {
             var exception = new NotSupportedException();
 
@@ -53,6 +53,7 @@ namespace Creobit.Backend.Auth
         public PlayFabAuth(string titleId)
         {
             TitleId = titleId;
+            PlayFabSettings.TitleId = titleId;
         }
 
         public IExceptionHandler ExceptionHandler
