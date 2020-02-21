@@ -1,0 +1,34 @@
+{
+    "name": "Creobit.Backend.Test.PlayMode",
+    "references": [
+        "UnityEngine.TestRunner",
+        "UnityEditor.TestRunner",
+        "Creobit.Backend.AndroidPlayFab",
+        "Creobit.Backend.AppStore",
+        "Creobit.Backend.AppStorePlayFab",
+        "Creobit.Backend.Core",
+        "Creobit.Backend.CustomPlayFab",
+        "Creobit.Backend.GooglePlay",
+        "Creobit.Backend.GooglePlayPlayFab",
+        "Creobit.Backend.IosPlayFab",
+        "Creobit.Backend.PlayFab",
+        "Creobit.Backend.Steam",
+        "Creobit.Backend.SteamPlayFab",
+        "Creobit.Backend.Unity"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "nunit.framework.dll",
+        "NSubstitute.dll"
+    ],
+    "autoReferenced": false,
+    "defineConstraints": [
+        "UNITY_INCLUDE_TESTS"
+    ],
+    "versionDefines": []
+}
