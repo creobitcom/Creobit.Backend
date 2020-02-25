@@ -12,3 +12,4 @@
 [assembly: InternalsVisibleTo("Creobit.Backend.SteamPlayFab")]
 [assembly: InternalsVisibleTo("Creobit.Backend.Unity")]
 [assembly: InternalsVisibleTo("Creobit.Backend.Test.PlayMode")]
+[assembly: InternalsVisibleTo("Creobit.Backend.Test.EditMode")]

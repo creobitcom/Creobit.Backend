@@ -1,5 +1,5 @@
 {
-    "name": "Creobit.Backend.Test.PlayMode",
+    "name": "Creobit.Backend.Test.EditMode",
     "references": [
         "UnityEngine.TestRunner",
         "UnityEditor.TestRunner",
@@ -13,9 +13,12 @@
         "Creobit.Backend.IosPlayFab",
         "Creobit.Backend.PlayFab",
         "Creobit.Backend.Steam",
-        "Creobit.Backend.SteamPlayFab"
+        "Creobit.Backend.SteamPlayFab",
+        "Creobit.Backend.Unity"
     ],
-    "includePlatforms": [],
+    "includePlatforms": [
+        "Editor"
+    ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": true,
