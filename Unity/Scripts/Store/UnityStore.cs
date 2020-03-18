@@ -11,7 +11,7 @@ using UnityEngine;
 
 namespace Creobit.Backend.Store
 {
-    public abstract class UnityStore : IUnityStore
+    public abstract partial class UnityStore : IUnityStore
     {
         #region IRefreshable
 
@@ -206,22 +206,51 @@ namespace Creobit.Backend.Store
             return subscribed == Result.True;
         }
 
-        //According to Unity:
-        //iOS subscription receipts are stored within IAppleConfiguration.
-        //Google subscription receipts are stored individually per corresponding product.
-        //https://forum.unity.com/threads/closed-how-do-i-track-auto-renewing-subscriptions.476293/?_ga=2.180162407.2122364283.1581505031-936382686.1578988334
-        private bool IsTrial(ISubscription subscription, string nativeProductId)
+        private int? GetTrialDuration(ISubscription subscription, string nativeProductId)
         {
 #if CREOBIT_BACKEND_IOS
-            var receipts = GetReceipts(nativeProductId);
+            var appleExtensions = ExtensionProvider.GetExtension<IAppleExtensions>();
+            var dict = appleExtensions.GetIntroductoryPriceDictionary();
+            if (dict != null && dict.TryGetValue(nativeProductId, out var json))
+            {
+                Debug.Log($"{nativeProductId} : {json}");
+                var data = JsonUtility.FromJson<AppleJson>(json);
+                return data.TrialDuration;
+            }
+#elif CREOBIT_BACKEND_GOOGLEPLAY
+            var googleExtensions = ExtensionProvider.GetExtension<IGooglePlayStoreExtensions>();
+            var dict = googleExtensions.GetProductJSONDictionary();
+            if (dict != null && dict.TryGetValue(nativeProductId, out var json))
+            {
+                Debug.Log($"{nativeProductId} : {json}");
+                var data = JsonUtility.FromJson<GooglePlayJson>(json);
+                return data.TrialDuration;
+            }
+#endif
+            return null;
+        }
+
+        private bool IsTrial(ISubscription subscription, string nativeProductId)
+        {
+            var trialDuration = subscription.TrialDuration;
+            if (!trialDuration.HasValue)
+            {
+                return false;
+            }
+
+#if CREOBIT_BACKEND_IOS
+            var receipts = GetAppleReceipts(nativeProductId);
             return !receipts.Any(receipt => receipt.isFreeTrial != 0 || receipt.isIntroductoryPricePeriod != 0);
+#elif CREOBIT_BACKEND_GOOGLEPLAY
+            //Sadly there is no native method available to check this prior to purchase.
+            return true;
 #else
             return false;
 #endif
         }
 
 #if CREOBIT_BACKEND_IOS
-        private IEnumerable<AppleInAppPurchaseReceipt> GetReceipts(string nativeProductId)
+        private IEnumerable<AppleInAppPurchaseReceipt> GetAppleReceipts(string nativeProductId)
         {
             try
             {
@@ -384,6 +413,7 @@ namespace Creobit.Backend.Store
                         IsCanceledDelegate = IsCanceled,
                         IsExpiredDelegate = IsExpired,
                         IsSubscribedDelegate = IsSubscribed,
+                        TrialDurationDelegate = item => GetTrialDuration(item, NativeProductId),
                         IsTrialDelegate = item => IsTrial(item, NativeProductId),
                         PurchaseDelegate = PurchaseSubscription
                     };

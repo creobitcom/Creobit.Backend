@@ -26,6 +26,8 @@ namespace Creobit.Backend.Store
             get;
         }
 
+        int? TrialDuration { get; }
+
         bool IsIntroductoryOffer
         {
             get;
