@@ -15,6 +15,15 @@ namespace Creobit.Backend.Link
             SteamAuth = steamAuth;
         }
 
+        bool IBasicLink.CanLink(LoginResult login)
+        {
+            var payload = login?.InfoResultPayload;
+            var accountInfo = payload?.AccountInfo;
+            var steamInfo = accountInfo?.SteamInfo;
+
+            return string.IsNullOrWhiteSpace(steamInfo?.SteamId);
+        }
+
         void IBasicLink.Link(bool forceRelink, Action onComplete, Action onFailure)
         {
             var authSessionTicket = SteamAuth.CreateAuthSessionTicket();

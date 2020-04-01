@@ -40,6 +40,15 @@ namespace Creobit.Backend.Link
             );
         }
 
+        bool IBasicLink.CanLink(LoginResult login)
+        {
+            var payload = login?.InfoResultPayload;
+            var accountInfo = payload?.AccountInfo;
+            var googleInfo = accountInfo?.GoogleInfo;
+
+            return string.IsNullOrWhiteSpace(googleInfo?.GoogleId);
+        }
+
         #endregion
     }
 }

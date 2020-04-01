@@ -3,7 +3,7 @@ using Creobit.Backend.Auth;
 using PlayFab;
 using PlayFab.ClientModels;
 using System;
-
+using System.Linq;
 
 namespace Creobit.Backend.Link
 {
@@ -14,6 +14,15 @@ namespace Creobit.Backend.Link
         void IBasicLink.Link(bool forceRelink, Action onComplete, Action onFailure)
         {
             OpenIdProvider.RequestToken(token => Link(token, forceRelink, onComplete, onFailure));
+        }
+
+        bool IBasicLink.CanLink(LoginResult login)
+        {
+            var payload = login?.InfoResultPayload;
+            var accountInfo = payload?.AccountInfo;
+            var openIdAccounts = accountInfo?.OpenIdInfo;
+
+            return openIdAccounts == null || !openIdAccounts.Any(any => any.ConnectionId == OpenIdProvider.Id);
         }
 
         #endregion

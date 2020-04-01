@@ -14,6 +14,11 @@ namespace Creobit.Backend.Link
             CustomId = customId;
         }
 
+        bool IBasicLink.CanLink(LoginResult login)
+        {
+            return true;
+        }
+
         void IBasicLink.Link(bool forceRelink, Action onComplete, Action onFailure)
         {
             PlayFabClientAPI.LinkCustomID

@@ -17,17 +17,15 @@ namespace Creobit.Backend.Link
 
         private readonly IPlayFabAuth OriginalAuth;
         private readonly IBasicLink OriginalLink;
-        private readonly Predicate<LoginResult> LinkingCondition;
 
 
         private IPlayFabAuth _customAuth;
         private float? _availabilityTime;
 
-        public PlayfabLinkCode(IPlayFabAuth originalAuth, IBasicLink originalLink, Predicate<LoginResult> linkingCondition)
+        public PlayfabLinkCode(IPlayFabAuth originalAuth, IBasicLink originalLink)
         {
             OriginalAuth = originalAuth;
             OriginalLink = originalLink;
-            LinkingCondition = linkingCondition;
         }
 
         public float AvailabilityTime
@@ -131,7 +129,7 @@ namespace Creobit.Backend.Link
 
         private bool CanPerformLink()
         {
-            return LinkingCondition(_customAuth.LoginResult);
+            return OriginalLink.CanLink(_customAuth.LoginResult);
         }
 
         private string CreateLinkKey(int lenght)

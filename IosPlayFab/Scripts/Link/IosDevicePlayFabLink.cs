@@ -8,6 +8,15 @@ namespace Creobit.Backend.Link
 {
     public sealed class IosDevicePlayFabLink : IBasicLink
     {
+        bool IBasicLink.CanLink(LoginResult login)
+        {
+            var payload = login?.InfoResultPayload;
+            var accountInfo = payload?.AccountInfo;
+            var deviceAccounts = accountInfo?.IosDeviceInfo;
+
+            return string.IsNullOrWhiteSpace(deviceAccounts?.IosDeviceId);
+        }
+
         void IBasicLink.Link(bool forceRelink, Action onComplete, Action onFailure)
         {
             PlayFabClientAPI.LinkIOSDeviceID
