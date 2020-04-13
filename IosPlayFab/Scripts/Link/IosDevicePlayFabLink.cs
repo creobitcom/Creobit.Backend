@@ -23,9 +23,9 @@ namespace Creobit.Backend.Link
             (
                 new LinkIOSDeviceIDRequest()
                 {
+                    ForceLink = forceRelink,
                     DeviceId = SystemInfo.deviceUniqueIdentifier,
                     DeviceModel = SystemInfo.deviceModel,
-                    ForceLink = forceRelink,
                     OS = SystemInfo.operatingSystem
                 },
                 result => onComplete(),

@@ -24,7 +24,7 @@ namespace Creobit.Backend.Auth
         {
             if (PlayFabClientAPI.IsClientLoggedIn())
             {
-                ((IPlayFabAuth)this).LoginResult = null;
+                LoginResult = null;
 
                 PlayFabClientAPI.ForgetAllCredentials();
             }
@@ -35,7 +35,7 @@ namespace Creobit.Backend.Auth
         #endregion
         #region IPlayFabAuth
 
-        LoginResult IPlayFabAuth.LoginResult
+        public LoginResult LoginResult
         {
             get;
             set;
