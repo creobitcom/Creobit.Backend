@@ -11,11 +11,6 @@ namespace Creobit.Backend.Link
     {
         #region IBasicLink
 
-        void IBasicLink.Link(bool forceRelink, Action onComplete, Action<LinkingError> onFailure)
-        {
-            OpenIdProvider.RequestToken(token => Link(token, forceRelink, onComplete, onFailure));
-        }
-
         bool IBasicLink.CanLink(LoginResult login)
         {
             var payload = login?.InfoResultPayload;
@@ -23,6 +18,16 @@ namespace Creobit.Backend.Link
             var openIdAccounts = accountInfo?.OpenIdInfo;
 
             return openIdAccounts == null || !openIdAccounts.Any(any => any.ConnectionId == OpenIdProvider.Id);
+        }
+
+        void IBasicLink.Link(bool forceRelink, Action onComplete, Action<LinkingError> onFailure)
+        {
+            OpenIdProvider.RequestToken(token => Link(token, forceRelink, onComplete, onFailure));
+        }
+
+        void IBasicLink.Unlink(Action onComplete, Action onFailure)
+        {
+            OpenIdProvider.RequestToken(token => Unlink(token, onComplete, onFailure));
         }
 
         #endregion
@@ -69,6 +74,15 @@ namespace Creobit.Backend.Link
                 default:
                     return LinkingError.Other;
             }
+        }
+
+        private void Unlink(string token, Action onComplete, Action onFailure)
+        {
+            var request = new UninkOpenIdConnectRequest()
+            {
+                ConnectionId = token
+            };
+            PlayFabClientAPI.UnlinkOpenIdConnect(request, result => onComplete?.Invoke(), error => onFailure?.Invoke());
         }
     }
 }

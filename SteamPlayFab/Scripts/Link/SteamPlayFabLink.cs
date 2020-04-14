@@ -46,6 +46,12 @@ namespace Creobit.Backend.Link
                 }
             );
         }
+
+        void IBasicLink.Unlink(Action onComplete, Action onFailure)
+        {
+            var request = new UnlinkSteamAccountRequest();
+            PlayFabClientAPI.UnlinkSteamAccount(request, result => onComplete?.Invoke(), error => onFailure?.Invoke());
+        }
     }
 }
 #endif

@@ -31,15 +31,6 @@ namespace Creobit.Backend.Link
 
         #region IBasicLink
 
-        void IBasicLink.Link(bool forceRelink, Action onComplete, Action<LinkingError> onFailure)
-        {
-            GoogleAuth.GetServerAuthCode
-            (
-                serverAuthCode => Link(serverAuthCode, forceRelink, onComplete, onFailure),
-                onFailure
-            );
-        }
-
         bool IBasicLink.CanLink(LoginResult login)
         {
             var payload = login?.InfoResultPayload;
@@ -47,6 +38,21 @@ namespace Creobit.Backend.Link
             var googleInfo = accountInfo?.GoogleInfo;
 
             return string.IsNullOrWhiteSpace(googleInfo?.GoogleId);
+        }
+
+        void IBasicLink.Link(bool forceRelink, Action onComplete, Action<LinkingError> onFailure)
+        {
+            GoogleAuth.GetServerAuthCode
+            (
+                serverAuthCode => Link(serverAuthCode, forceRelink, onComplete, onFailure),
+                () => onFailure?.Invoke(LinkingError.CanceledByUser)
+            );
+        }
+
+        void IBasicLink.Unlink(Action onComplete, Action onFailure)
+        {
+            var request = new UnlinkGoogleAccountRequest();
+            PlayFabClientAPI.UnlinkGoogleAccount(request, result => onComplete?.Invoke(), error => onFailure?.Invoke());
         }
 
         #endregion

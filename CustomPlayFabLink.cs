@@ -32,6 +32,15 @@ namespace Creobit.Backend.Link
                 error => onFailure(LinkingError.Other)
             );
         }
+
+        void IBasicLink.Unlink(Action onComplete, Action onFailure)
+        {
+            var request = new UnlinkCustomIDRequest()
+            {
+                CustomId = CustomId
+            };
+            PlayFabClientAPI.UnlinkCustomID(request, result => onComplete?.Invoke(), error => onFailure?.Invoke());
+        }
     }
 }
 #endif
