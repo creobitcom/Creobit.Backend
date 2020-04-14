@@ -5,6 +5,7 @@ namespace Creobit.Backend.Link
     public enum LinkingError
     {
         CanceledByUser,
+        AlreadyLinked,
         Other
     }
 }

@@ -55,8 +55,20 @@ namespace Creobit.Backend.Link
         private void ProcessError(PlayFabError error, Action<LinkingError> onFailure)
         {
             PlayFabErrorHandler.Default.Process(error);
-            UnityEngine.Debug.Log($"LinkedAccountAlreadyClaimed ? {error.Error == PlayFabErrorCode.LinkedAccountAlreadyClaimed}, AccountAlreadyLinked ? {error.Error == PlayFabErrorCode.AccountAlreadyLinked}");
+            var linkError = GetLinkError(error);
             onFailure?.Invoke(LinkingError.Other);
+        }
+
+        private LinkingError GetLinkError(PlayFabError error)
+        {
+            switch (error.Error)
+            {
+                case PlayFabErrorCode.LinkedIdentifierAlreadyClaimed:
+                    return LinkingError.AlreadyLinked;
+
+                default:
+                    return LinkingError.Other;
+            }
         }
     }
 }
