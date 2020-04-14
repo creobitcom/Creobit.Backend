@@ -15,7 +15,7 @@ namespace Creobit.Backend.Link
             GoogleAuth = googleAuth;
         }
 
-        private void Link(string serverAuthCode, bool forceRelink, Action onComplete, Action onFailure)
+        private void Link(string serverAuthCode, bool forceRelink, Action onComplete, Action<LinkingError> onFailure)
         {
             PlayFabClientAPI.LinkGoogleAccount
             (
@@ -24,14 +24,14 @@ namespace Creobit.Backend.Link
                     ForceLink = forceRelink,
                     ServerAuthCode = serverAuthCode
                 },
-                result => onComplete(),
-                error => onFailure()
+                result => onComplete?.Invoke(),
+                error => onFailure?.Invoke(LinkingError.Other)
             );
         }
 
         #region IBasicLink
 
-        void IBasicLink.Link(bool forceRelink, Action onComplete, Action onFailure)
+        void IBasicLink.Link(bool forceRelink, Action onComplete, Action<LinkingError> onFailure)
         {
             GoogleAuth.GetServerAuthCode
             (

@@ -124,7 +124,7 @@ namespace Creobit.Backend.Link
                 return;
             }
 
-            OriginalLink.Link(true, onComplete, onFailure);
+            OriginalLink.Link(true, onComplete, reason => onFailure?.Invoke());
         }
 
         private bool CanPerformLink()
@@ -163,7 +163,7 @@ namespace Creobit.Backend.Link
         {
             var linkKey = CreateLinkKey(linkKeyLenght);
             IBasicLink link = new CustomPlayFabLink(linkKey);
-            link.Link(false, WriteLinkKeyExpirationTime, onFailure);
+            link.Link(false, WriteLinkKeyExpirationTime, reason => onFailure?.Invoke());
 
             void WriteLinkKeyExpirationTime()
             {

@@ -11,7 +11,7 @@ namespace Creobit.Backend.Link
     {
         #region IBasicLink
 
-        void IBasicLink.Link(bool forceRelink, Action onComplete, Action onFailure)
+        void IBasicLink.Link(bool forceRelink, Action onComplete, Action<LinkingError> onFailure)
         {
             OpenIdProvider.RequestToken(token => Link(token, forceRelink, onComplete, onFailure));
         }
@@ -34,8 +34,14 @@ namespace Creobit.Backend.Link
             OpenIdProvider = openIdProvider;
         }
 
-        private void Link(string idToken, bool forceRelink, Action onComplete, Action onFailure)
+        private void Link(string idToken, bool forceRelink, Action onComplete, Action<LinkingError> onFailure)
         {
+            if (string.IsNullOrWhiteSpace(idToken))
+            {
+                onFailure?.Invoke(LinkingError.CanceledByUser);
+                return;
+            }
+
             var request = new LinkOpenIdConnectRequest()
             {
                 IdToken = idToken,
@@ -43,7 +49,14 @@ namespace Creobit.Backend.Link
                 ForceLink = forceRelink
             };
 
-            PlayFabClientAPI.LinkOpenIdConnect(request, result => onComplete?.Invoke(), error => onFailure?.Invoke());
+            PlayFabClientAPI.LinkOpenIdConnect(request, result => onComplete?.Invoke(), error => ProcessError(error, onFailure));
+        }
+
+        private void ProcessError(PlayFabError error, Action<LinkingError> onFailure)
+        {
+            PlayFabErrorHandler.Default.Process(error);
+            UnityEngine.Debug.Log($"LinkedAccountAlreadyClaimed ? {error.Error == PlayFabErrorCode.LinkedAccountAlreadyClaimed}, AccountAlreadyLinked ? {error.Error == PlayFabErrorCode.AccountAlreadyLinked}");
+            onFailure?.Invoke(LinkingError.Other);
         }
     }
 }

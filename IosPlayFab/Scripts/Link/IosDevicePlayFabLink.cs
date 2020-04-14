@@ -17,7 +17,7 @@ namespace Creobit.Backend.Link
             return string.IsNullOrWhiteSpace(deviceAccounts?.IosDeviceId);
         }
 
-        void IBasicLink.Link(bool forceRelink, Action onComplete, Action onFailure)
+        void IBasicLink.Link(bool forceRelink, Action onComplete, Action<LinkingError> onFailure)
         {
             PlayFabClientAPI.LinkIOSDeviceID
             (
@@ -29,7 +29,7 @@ namespace Creobit.Backend.Link
                     OS = SystemInfo.operatingSystem
                 },
                 result => onComplete(),
-                error => onFailure()
+                error => onFailure(LinkingError.Other)
             );
         }
     }

@@ -19,7 +19,7 @@ namespace Creobit.Backend.Link
             return true;
         }
 
-        void IBasicLink.Link(bool forceRelink, Action onComplete, Action onFailure)
+        void IBasicLink.Link(bool forceRelink, Action onComplete, Action<LinkingError> onFailure)
         {
             PlayFabClientAPI.LinkCustomID
             (
@@ -29,7 +29,7 @@ namespace Creobit.Backend.Link
                     ForceLink = forceRelink
                 },
                 result => onComplete(),
-                error => onFailure()
+                error => onFailure(LinkingError.Other)
             );
         }
     }

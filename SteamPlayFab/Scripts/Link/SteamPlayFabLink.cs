@@ -24,7 +24,7 @@ namespace Creobit.Backend.Link
             return string.IsNullOrWhiteSpace(steamInfo?.SteamId);
         }
 
-        void IBasicLink.Link(bool forceRelink, Action onComplete, Action onFailure)
+        void IBasicLink.Link(bool forceRelink, Action onComplete, Action<LinkingError> onFailure)
         {
             var authSessionTicket = SteamAuth.CreateAuthSessionTicket();
             PlayFabClientAPI.LinkSteamAccount
@@ -37,13 +37,12 @@ namespace Creobit.Backend.Link
                 result =>
                 {
                     SteamAuth.DestroyAuthSessionTicket(authSessionTicket);
-                    onComplete();
+                    onComplete?.Invoke();
                 },
                 error =>
                 {
                     SteamAuth.DestroyAuthSessionTicket(authSessionTicket);
-
-                    onFailure();
+                    onFailure?.Invoke(LinkingError.Other);
                 }
             );
         }
