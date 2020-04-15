@@ -61,7 +61,7 @@ namespace Creobit.Backend.Link
         {
             PlayFabErrorHandler.Default.Process(error);
             var linkError = GetLinkError(error);
-            onFailure?.Invoke(LinkingError.Other);
+            onFailure?.Invoke(linkError);
         }
 
         private LinkingError GetLinkError(PlayFabError error)
