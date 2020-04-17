@@ -13,7 +13,7 @@ namespace Creobit.Backend.Auth
 
         bool IAuth.IsLoggedIn => SteamClient.IsLoggedOn;
 
-        void IAuth.Login(Action onComplete, Action onFailure)
+        void IAuth.Login(bool doCreateAccount, Action onComplete, Action onFailure)
         {
             if (RestartAppIfNecessary && SteamClient.RestartAppIfNecessary(AppId))
             {

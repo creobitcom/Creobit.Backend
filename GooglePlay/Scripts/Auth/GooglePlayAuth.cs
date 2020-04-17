@@ -12,7 +12,7 @@ namespace Creobit.Backend.Auth
 
         bool IAuth.IsLoggedIn => PlayGamesPlatform.Instance.IsAuthenticated();
 
-        void IAuth.Login(Action onComplete, Action onFailure)
+        void IAuth.Login(bool doCreateAccount, Action onComplete, Action onFailure)
         {
             if (PlayGamesPlatform.Instance.IsAuthenticated())
             {
