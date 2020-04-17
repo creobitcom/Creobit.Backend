@@ -1,4 +1,5 @@
 ﻿#if CREOBIT_BACKEND_PLAYFAB
+using Creobit.Backend;
 using Creobit.Backend.Auth;
 using PlayFab;
 using PlayFab.ClientModels;
@@ -15,17 +16,15 @@ namespace Creobit.Backend.Link
 
         private const string LinkKeyExpirationTime = nameof(LinkKeyExpirationTime);
 
-        private readonly IPlayFabAuth OriginalAuth;
-        private readonly IBasicLink OriginalLink;
+        private readonly IAccountManagement OriginalAccount;
 
+        private IAccountManagement _customAccount;
 
-        private IPlayFabAuth _customAuth;
         private float? _availabilityTime;
 
-        public PlayfabLinkCode(IPlayFabAuth originalAuth, IBasicLink originalLink)
+        public PlayfabLinkCode(IAccountManagement originalAccount)
         {
-            OriginalAuth = originalAuth;
-            OriginalLink = originalLink;
+            OriginalAccount = originalAccount;
         }
 
         public float AvailabilityTime
@@ -36,37 +35,18 @@ namespace Creobit.Backend.Link
 
         private void Restore(Action onFailure)
         {
-            _customAuth.Logout(Relogin, onFailure);
+            _customAccount.Auth.Logout(Relogin, onFailure);
 
             void Relogin()
             {
-                _customAuth = null;
-                OriginalAuth.Login(onFailure, onFailure);
+                _customAccount = null;
+                OriginalAccount.Auth.Login(onFailure, onFailure);
             }
         }
 
-        private void OnCustomLoginPerformed(string linkKey, Action onComplete, Action onFailure)
+        private void OnCustomLoginPerformed(Action onComplete, Action onFailure)
         {
-            try
-            {
-                PlayFabClientAPI.UnlinkCustomID(
-                    new UnlinkCustomIDRequest()
-                    {
-                        CustomId = linkKey
-                    },
-                    result =>
-                    {
-                        CheckLinkKeyExpirationTime(onComplete, onFailure);
-                    },
-                    error =>
-                    {
-                        onFailure();
-                    });
-            }
-            catch (Exception)
-            {
-                onFailure();
-            }
+            _customAccount.Link.Unlink(() => CheckLinkKeyExpirationTime(onComplete, onFailure), onFailure);
         }
 
         private void CheckLinkKeyExpirationTime(Action onComplete, Action onFailure)
@@ -124,12 +104,12 @@ namespace Creobit.Backend.Link
                 return;
             }
 
-            OriginalLink.Link(true, onComplete, reason => onFailure?.Invoke());
+            OriginalAccount.Link.Link(true, onComplete, reason => onFailure?.Invoke());
         }
 
         private bool CanPerformLink()
         {
-            return OriginalLink.CanLink(_customAuth.LoginResult);
+            return OriginalAccount.Link.CanLink(_customAccount.Auth.LoginResult);
         }
 
         private string CreateLinkKey(int lenght)
@@ -154,9 +134,9 @@ namespace Creobit.Backend.Link
         void ILinkCode.Link(string linkKey, Action onComplete, Action onFailure)
         {
             //TODO - that is a workaround. It should stay in place as long as we pass PlayFabAuth to specific Authentification methods.
-            var playfabAuth = new PlayFabAuth(OriginalAuth.TitleId);
-            _customAuth = new CustomPlayfabAuth(playfabAuth, linkKey);
-            _customAuth.Login(() => OnCustomLoginPerformed(linkKey, onComplete, onFailure), onFailure);
+            var playfabAuth = new PlayFabAuth(OriginalAccount.Auth.TitleId);
+            _customAccount = new AccountManagement(new CustomPlayfabAuth(playfabAuth, linkKey), new CustomPlayFabLink(linkKey));
+            _customAccount.Auth.Login(() => OnCustomLoginPerformed(onComplete, onFailure), onFailure);
         }
 
         void ILinkCode.RequestLinkKey(int linkKeyLenght, Action<(string LinkKey, DateTime LinkKeyExpirationTime)> onComplete, Action onFailure)
