@@ -5,8 +5,10 @@ using System;
 
 namespace Creobit.Backend.Link
 {
-    public sealed class CustomPlayFabLink : IBasicLink
+    public sealed class CustomPlayFabLink : PlayfabLinkBasic
     {
+        #region CustomPlayFabLink
+
         private readonly string CustomId;
 
         public CustomPlayFabLink(string customId)
@@ -14,12 +16,15 @@ namespace Creobit.Backend.Link
             CustomId = customId;
         }
 
-        bool IBasicLink.CanLink(LoginResult login)
+        #endregion
+        #region PlayfabLinkBasic
+
+        protected override bool CanLink(LoginResult login)
         {
             return true;
         }
 
-        void IBasicLink.Link(bool forceRelink, Action onComplete, Action<LinkingError> onFailure)
+        protected override void Link(bool forceRelink, Action onComplete, Action<LinkingError> onFailure)
         {
             PlayFabClientAPI.LinkCustomID
             (
@@ -33,14 +38,26 @@ namespace Creobit.Backend.Link
             );
         }
 
-        void IBasicLink.Unlink(Action onComplete, Action onFailure)
+        protected override void Unlink(Action onComplete, Action onFailure)
         {
             var request = new UnlinkCustomIDRequest()
             {
                 CustomId = CustomId
             };
-            PlayFabClientAPI.UnlinkCustomID(request, result => onComplete?.Invoke(), error => onFailure?.Invoke());
+
+            PlayFabClientAPI.UnlinkCustomID
+            (
+                request,
+                result => onComplete?.Invoke(),
+                error =>
+                {
+                    PlayFabErrorHandler.Process(error);
+                    onFailure?.Invoke();
+                }
+            );
         }
+
+        #endregion
     }
 }
 #endif

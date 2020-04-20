@@ -6,8 +6,12 @@ using System;
 
 namespace Creobit.Backend.Link
 {
-    public sealed class SteamPlayfabLink : IBasicLink
+    public sealed class SteamPlayfabLink : PlayfabLinkBasic
     {
+        #region SteamPlayfabLink
+
+        private const int MaxLoginAttempts = 3;
+
         private readonly ISteamAuth SteamAuth;
 
         public SteamPlayfabLink(ISteamAuth steamAuth)
@@ -15,7 +19,10 @@ namespace Creobit.Backend.Link
             SteamAuth = steamAuth;
         }
 
-        bool IBasicLink.CanLink(LoginResult login)
+        #endregion
+        #region PlayfabLinkBasic
+
+        protected override bool CanLink(LoginResult login)
         {
             var payload = login?.InfoResultPayload;
             var accountInfo = payload?.AccountInfo;
@@ -24,34 +31,59 @@ namespace Creobit.Backend.Link
             return string.IsNullOrWhiteSpace(steamInfo?.SteamId);
         }
 
-        void IBasicLink.Link(bool forceRelink, Action onComplete, Action<LinkingError> onFailure)
+        protected override void Link(bool forceRelink, Action onComplete, Action<LinkingError> onFailure)
         {
-            var authSessionTicket = SteamAuth.CreateAuthSessionTicket();
-            PlayFabClientAPI.LinkSteamAccount
+            SteamLink(MaxLoginAttempts);
+
+            void SteamLink(int attemptsRemaining)
+            {
+                var authSessionTicket = SteamAuth.CreateAuthSessionTicket();
+                PlayFabClientAPI.LinkSteamAccount
+                (
+                    new LinkSteamAccountRequest()
+                    {
+                        ForceLink = forceRelink,
+                        SteamTicket = authSessionTicket
+                    },
+                    result =>
+                    {
+                        SteamAuth.DestroyAuthSessionTicket(authSessionTicket);
+                        onComplete?.Invoke();
+                    },
+                    error =>
+                    {
+                        PlayFabErrorHandler.Process(error);
+                        SteamAuth.DestroyAuthSessionTicket(authSessionTicket);
+
+                        if (error.Error == PlayFabErrorCode.InvalidSteamTicket)
+                        {
+                            SteamLink(--attemptsRemaining);
+                        }
+                        else
+                        {
+                            onFailure?.Invoke(LinkingError.Other);
+                        }
+                    }
+                );
+            }
+        }
+
+        protected override void Unlink(Action onComplete, Action onFailure)
+        {
+            var request = new UnlinkSteamAccountRequest();
+            PlayFabClientAPI.UnlinkSteamAccount
             (
-                new LinkSteamAccountRequest()
-                {
-                    ForceLink = forceRelink,
-                    SteamTicket = authSessionTicket
-                },
-                result =>
-                {
-                    SteamAuth.DestroyAuthSessionTicket(authSessionTicket);
-                    onComplete?.Invoke();
-                },
+                request,
+                result => onComplete?.Invoke(),
                 error =>
                 {
-                    SteamAuth.DestroyAuthSessionTicket(authSessionTicket);
-                    onFailure?.Invoke(LinkingError.Other);
+                    PlayFabErrorHandler.Process(error);
+                    onFailure?.Invoke();
                 }
             );
         }
 
-        void IBasicLink.Unlink(Action onComplete, Action onFailure)
-        {
-            var request = new UnlinkSteamAccountRequest();
-            PlayFabClientAPI.UnlinkSteamAccount(request, result => onComplete?.Invoke(), error => onFailure?.Invoke());
-        }
+        #endregion
     }
 }
 #endif

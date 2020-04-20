@@ -1,5 +1,4 @@
 ﻿#if CREOBIT_BACKEND_PLAYFAB
-using Creobit.Backend;
 using Creobit.Backend.Auth;
 using PlayFab;
 using PlayFab.ClientModels;
@@ -136,6 +135,7 @@ namespace Creobit.Backend.Link
             //TODO - that is a workaround. It should stay in place as long as we pass PlayFabAuth to specific Authentification methods.
             var playfabAuth = new PlayFabAuth(OriginalAccount.Auth.TitleId);
             _customAccount = new AccountManagement(new CustomPlayfabAuth(playfabAuth, linkKey), new CustomPlayFabLink(linkKey));
+
             _customAccount.Auth.Login(() => OnCustomLoginPerformed(onComplete, onFailure), onFailure);
         }
 
