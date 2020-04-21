@@ -1,32 +1,33 @@
-﻿using System;
+﻿using Creobit.Backend.Link;
+using System;
 using System.Collections.Generic;
 
 namespace Creobit
 {
     public static class ChainBlockExtensions
     {
-        public static void Execute(this IEnumerable<IChainBlock<bool>> chain, Action onComplete, Action onFailure)
+        public static void Execute(this IEnumerable<IChainBlock<LinkCodeError?>> chain, Action onComplete, Action<LinkCodeError> onFailure)
         {
             chain.Execute(OnExecuted);
 
-            void OnExecuted(bool result)
+            void OnExecuted(LinkCodeError? error)
             {
-                if (result)
+                if (!error.HasValue)
                 {
                     onComplete?.Invoke();
                     return;
                 }
 
-                onFailure?.Invoke();
+                onFailure?.Invoke(error.Value);
             }
         }
 
-        public static void Execute(this IEnumerable<IChainBlock<bool>> chain, Action<bool> handler)
+        public static void Execute(this IEnumerable<IChainBlock<LinkCodeError?>> chain, Action<LinkCodeError?> handler)
         {
             Start(chain.GetEnumerator(), handler);
         }
 
-        private static void Start(IEnumerator<IChainBlock<bool>> pointer, Action<bool> handler)
+        private static void Start(IEnumerator<IChainBlock<LinkCodeError?>> pointer, Action<LinkCodeError?> handler)
         {
             UnityEngine.Debug.LogWarning($"pointer == null ? {pointer == null} , pointer?.Current == null ? {pointer?.Current == null}");
             if (pointer.MoveNext())
@@ -35,14 +36,14 @@ namespace Creobit
                 return;
             }
 
-            handler?.Invoke(true);
+            handler?.Invoke(null);
 
 
-            void OnExecuted(bool isSuccess)
+            void OnExecuted(LinkCodeError? error)
             {
-                if (!isSuccess)
+                if (error.HasValue)
                 {
-                    handler?.Invoke(false);
+                    handler?.Invoke(error.Value);
                     return;
                 }
 

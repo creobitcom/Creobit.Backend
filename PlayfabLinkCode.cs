@@ -7,7 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using IChainBlock = Creobit.IChainBlock<bool>;
+using IChainBlock = Creobit.IChainBlock<Creobit.Backend.Link.LinkCodeError?>;
+using SimpleChainBlock = Creobit.SimpleChainBlock<Creobit.Backend.Link.LinkCodeError?>;
 
 namespace Creobit.Backend.Link
 {
@@ -46,7 +47,7 @@ namespace Creobit.Backend.Link
             }
         }
 
-        private void CheckLinkKeyExpirationTime(Action<bool> handler)
+        private void CheckLinkKeyExpirationTime(Action<LinkCodeError?> handler)
         {
             try
             {
@@ -65,7 +66,7 @@ namespace Creobit.Backend.Link
 
                         if (!data.TryGetValue(LinkKeyExpirationTime, out var record))
                         {
-                            handler?.Invoke(false);
+                            handler?.Invoke(LinkCodeError.IncorrectCode);
                             return;
                         }
 
@@ -74,22 +75,22 @@ namespace Creobit.Backend.Link
 
                         if (now > expirationTime)
                         {
-                            handler?.Invoke(false);
+                            handler?.Invoke(LinkCodeError.IncorrectCode);
                         }
                         else
                         {
-                            handler?.Invoke(true);
+                            handler?.Invoke(null);
                         }
                     },
                     error =>
                     {
-                        handler?.Invoke(false);
+                        handler?.Invoke(LinkCodeError.IncorrectCode);
                     }
                 );
             }
             catch (Exception)
             {
-                handler?.Invoke(false);
+                handler?.Invoke(LinkCodeError.IncorrectCode);
             }
         }
 
@@ -119,17 +120,32 @@ namespace Creobit.Backend.Link
         {
             var chain = Enumerable.Empty<IChainBlock>();
             //TODO - add some syntax sugar.
-            chain = chain.Append(new SimpleChainBlock(trigger => _customAccount.Auth.Login(() => trigger?.Invoke(true), () => trigger?.Invoke(false))));
+            chain = chain.Append(new SimpleChainBlock(trigger => _customAccount.Auth.Login(() => trigger?.Invoke(null), () => trigger?.Invoke(LinkCodeError.IncorrectCode))));
             chain = chain.Append(new SimpleChainBlock(CheckLinkKeyExpirationTime));
-            chain = chain.Append(new SimpleChainBlock(trigger => trigger?.Invoke(CanPerformLink())));
+            chain = chain.Append(new SimpleChainBlock(CheckIfCanPerfomLink));
 
             handler?.Invoke(chain);
+        }
+
+        private void CheckIfCanPerfomLink(Action<LinkCodeError?> trigger)
+        {
+            LinkCodeError? error;
+            if (CanPerformLink())
+            {
+                error = null;
+            }
+            else
+            {
+                error = LinkCodeError.IncorrectCode;
+            }
+
+            trigger?.Invoke(error);
         }
 
         #endregion
         #region IPlayFabLink
 
-        void ILinkCode.Link(string linkKey, Action onComplete, Action onFailure)
+        void ILinkCode.Link(string linkKey, Action onComplete, Action<LinkCodeError> onFailure)
         {
             //TODO - that is a workaround. It should stay in place as long as we pass PlayFabAuth to specific Authentification methods.
             var playfabAuth = new PlayFabAuth(OriginalAccount.Auth.TitleId);
@@ -139,11 +155,11 @@ namespace Creobit.Backend.Link
             void OnChainGenerated(IEnumerable<IChainBlock> chain)
             {
                 //TODO - add some syntax sugar.
-                chain = chain.Append(new SimpleChainBlock(trigger => OriginalAccount.Link.Link(true, () => trigger?.Invoke(true), reason => trigger?.Invoke(false))));
+                chain = chain.Append(new SimpleChainBlock(trigger => OriginalAccount.Link.Link(true, () => trigger?.Invoke(null), reason => trigger?.Invoke(reason == LinkingError.CanceledByUser ? LinkCodeError.CanceledByUser : LinkCodeError.NetworkProblems))));
                 //TODO - add some syntax sugar.
-                chain = chain.Append(new SimpleChainBlock(trigger => _customAccount.Link.Unlink(() => trigger?.Invoke(true), () => trigger?.Invoke(true))));
+                chain = chain.Append(new SimpleChainBlock(trigger => _customAccount.Link.Unlink(() => trigger?.Invoke(null), () => trigger?.Invoke(null))));
 
-                chain.Execute(OnComplete, () => Restore(onFailure));
+                chain.Execute(OnComplete, error => Restore(() => onFailure?.Invoke(error)));
             }
 
             void OnComplete()
