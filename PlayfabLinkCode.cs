@@ -5,14 +5,17 @@ using PlayFab.ClientModels;
 using System.Globalization;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using IChainBlock = Creobit.IChainBlock<bool>;
 
 namespace Creobit.Backend.Link
 {
-    public sealed class PlayfabLinkCode : IPlayFabLink
+    public class PlayfabLinkCode : IPlayFabLink
     {
         #region PlayfabLinkCode
 
+        private const float DefaultAvailabilityTime = 3 * 60f;
         private const string LinkKeyExpirationTime = nameof(LinkKeyExpirationTime);
 
         private readonly IAccountManagement OriginalAccount;
@@ -28,11 +31,11 @@ namespace Creobit.Backend.Link
 
         public float AvailabilityTime
         {
-            get => _availabilityTime ?? 180f;
+            get => _availabilityTime ?? DefaultAvailabilityTime;
             set => _availabilityTime = value;
         }
 
-        private void Restore(Action onFailure)
+        protected virtual void Restore(Action onFailure)
         {
             _customAccount.Auth.Logout(Relogin, onFailure);
 
@@ -43,12 +46,7 @@ namespace Creobit.Backend.Link
             }
         }
 
-        private void OnCustomLoginPerformed(Action onComplete, Action onFailure)
-        {
-            _customAccount.Link.Unlink(() => CheckLinkKeyExpirationTime(onComplete, onFailure), onFailure);
-        }
-
-        private void CheckLinkKeyExpirationTime(Action onComplete, Action onFailure)
+        private void CheckLinkKeyExpirationTime(Action<bool> handler)
         {
             try
             {
@@ -67,7 +65,7 @@ namespace Creobit.Backend.Link
 
                         if (!data.TryGetValue(LinkKeyExpirationTime, out var record))
                         {
-                            Restore(onFailure);
+                            handler?.Invoke(false);
                             return;
                         }
 
@@ -76,34 +74,23 @@ namespace Creobit.Backend.Link
 
                         if (now > expirationTime)
                         {
-                            Restore(onFailure);
+                            handler?.Invoke(false);
                         }
                         else
                         {
-                            LinkAccounts(onComplete, onFailure);
+                            handler?.Invoke(true);
                         }
                     },
                     error =>
                     {
-                        onFailure();
+                        handler?.Invoke(false);
                     }
                 );
             }
             catch (Exception)
             {
-                onFailure();
+                handler?.Invoke(false);
             }
-        }
-
-        private void LinkAccounts(Action onComplete, Action onFailure)
-        {
-            if (!CanPerformLink())
-            {
-                Restore(onFailure);
-                return;
-            }
-
-            OriginalAccount.Link.Link(true, onComplete, reason => onFailure?.Invoke());
         }
 
         private bool CanPerformLink()
@@ -127,6 +114,18 @@ namespace Creobit.Backend.Link
             return stringBuilder.ToString();
         }
 
+
+        protected virtual void RequestChain(string linkKey, Action<IEnumerable<IChainBlock>> handler)
+        {
+            var chain = Enumerable.Empty<IChainBlock>();
+            //TODO - add some syntax sugar.
+            chain = chain.Append(new SimpleChainBlock(trigger => _customAccount.Auth.Login(() => trigger?.Invoke(true), () => trigger?.Invoke(false))));
+            chain = chain.Append(new SimpleChainBlock(CheckLinkKeyExpirationTime));
+            chain = chain.Append(new SimpleChainBlock(trigger => trigger?.Invoke(CanPerformLink())));
+
+            handler?.Invoke(chain);
+        }
+
         #endregion
         #region IPlayFabLink
 
@@ -136,7 +135,22 @@ namespace Creobit.Backend.Link
             var playfabAuth = new PlayFabAuth(OriginalAccount.Auth.TitleId);
             _customAccount = new AccountManagement(new CustomPlayfabAuth(playfabAuth, linkKey), new CustomPlayFabLink(linkKey));
 
-            _customAccount.Auth.Login(() => OnCustomLoginPerformed(onComplete, onFailure), onFailure);
+            RequestChain(linkKey, OnChainGenerated);
+            void OnChainGenerated(IEnumerable<IChainBlock> chain)
+            {
+                //TODO - add some syntax sugar.
+                chain = chain.Append(new SimpleChainBlock(trigger => OriginalAccount.Link.Link(true, () => trigger?.Invoke(true), reason => trigger?.Invoke(false))));
+                //TODO - add some syntax sugar.
+                chain = chain.Append(new SimpleChainBlock(trigger => _customAccount.Link.Unlink(() => trigger?.Invoke(true), () => trigger?.Invoke(true))));
+
+                chain.Execute(OnComplete, () => Restore(onFailure));
+            }
+
+            void OnComplete()
+            {
+                _customAccount = null;
+                onComplete?.Invoke();
+            }
         }
 
         void ILinkCode.RequestLinkKey(int linkKeyLenght, Action<(string LinkKey, DateTime LinkKeyExpirationTime)> onComplete, Action onFailure)
