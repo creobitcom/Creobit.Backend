@@ -13,14 +13,20 @@ namespace Creobit.Backend.Auth
 
         void IAuth.Login(bool doCreateAccount, Action onComplete, Action onFailure)
         {
-            SteamLogin();
+            SteamLogin(MaxLoginAttempts);
 
-            void SteamLogin()
+            void SteamLogin(int attemptsRemaining)
             {
-                SteamAuth.Login(PlayFabLogin, onFailure);
+                if (attemptsRemaining < 0)
+                {
+                    onFailure?.Invoke();
+                    return;
+                }
+
+                SteamAuth.Login(() => PlayFabLogin(attemptsRemaining), onFailure);
             }
 
-            void PlayFabLogin()
+            void PlayFabLogin(int attemptsRemaining)
             {
                 var authSessionTicket = SteamAuth.CreateAuthSessionTicket();
 
@@ -45,7 +51,7 @@ namespace Creobit.Backend.Auth
 
                             SteamAuth.DestroyAuthSessionTicket(authSessionTicket);
 
-                            onComplete();
+                            onComplete?.Invoke();
                         },
                         error =>
                         {
@@ -53,7 +59,14 @@ namespace Creobit.Backend.Auth
 
                             SteamAuth.DestroyAuthSessionTicket(authSessionTicket);
 
-                            onFailure();
+                            if (error.Error == PlayFabErrorCode.InvalidSteamTicket)
+                            {
+                                SteamLogin(--attemptsRemaining);
+                            }
+                            else
+                            {
+                                onFailure?.Invoke();
+                            }
                         });
                 }
                 catch (Exception exception)
@@ -102,6 +115,8 @@ namespace Creobit.Backend.Auth
 
         #endregion
         #region SteamPlayFabAuth
+
+        private const int MaxLoginAttempts = 3;
 
         private readonly IPlayFabAuth PlayFabAuth;
         private readonly ISteamAuth SteamAuth;

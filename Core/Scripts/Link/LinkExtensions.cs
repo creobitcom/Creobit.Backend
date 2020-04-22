@@ -15,7 +15,7 @@ namespace Creobit.Backend.Link
 
             self.Link(linkKey,
                 () => invokeResult = true,
-                () => invokeResult = false);
+                error => invokeResult = false);
 
             while (!invokeResult.HasValue)
             {

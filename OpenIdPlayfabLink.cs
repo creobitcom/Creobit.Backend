@@ -7,11 +7,11 @@ using System.Linq;
 
 namespace Creobit.Backend.Link
 {
-    public sealed class OpenIdPlayfabLink : IBasicLink
+    public sealed class OpenIdPlayfabLink : PlayfabLinkBasic
     {
         #region IBasicLink
 
-        bool IBasicLink.CanLink(LoginResult login)
+        protected override bool CanLink(LoginResult login)
         {
             var payload = login?.InfoResultPayload;
             var accountInfo = payload?.AccountInfo;
@@ -20,17 +20,18 @@ namespace Creobit.Backend.Link
             return openIdAccounts == null || !openIdAccounts.Any(any => any.ConnectionId == OpenIdProvider.Id);
         }
 
-        void IBasicLink.Link(bool forceRelink, Action onComplete, Action<LinkingError> onFailure)
+        protected override void Link(bool forceRelink, Action onComplete, Action<LinkingError> onFailure)
         {
             OpenIdProvider.RequestToken(token => Link(token, forceRelink, onComplete, onFailure));
         }
 
-        void IBasicLink.Unlink(Action onComplete, Action onFailure)
+        protected override void Unlink(Action onComplete, Action onFailure)
         {
             OpenIdProvider.RequestToken(token => Unlink(token, onComplete, onFailure));
         }
 
         #endregion
+        #region OpenIdPlayfabLink
 
         private readonly IOpenIdProvider OpenIdProvider;
 
@@ -54,14 +55,15 @@ namespace Creobit.Backend.Link
                 ForceLink = forceRelink
             };
 
-            PlayFabClientAPI.LinkOpenIdConnect(request, result => onComplete?.Invoke(), error => ProcessError(error, onFailure));
-        }
+            PlayFabClientAPI.LinkOpenIdConnect(request, result => onComplete?.Invoke(), error => ProcessError(error));
 
-        private void ProcessError(PlayFabError error, Action<LinkingError> onFailure)
-        {
-            PlayFabErrorHandler.Default.Process(error);
-            var linkError = GetLinkError(error);
-            onFailure?.Invoke(linkError);
+            void ProcessError(PlayFabError error)
+            {
+                PlayFabErrorHandler.Process(error);
+
+                var linkError = GetLinkError(error);
+                onFailure?.Invoke(linkError);
+            }
         }
 
         private LinkingError GetLinkError(PlayFabError error)
@@ -84,6 +86,8 @@ namespace Creobit.Backend.Link
             };
             PlayFabClientAPI.UnlinkOpenIdConnect(request, result => onComplete?.Invoke(), error => onFailure?.Invoke());
         }
+
+        #endregion
     }
 }
 #endif
