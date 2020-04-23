@@ -244,6 +244,14 @@ namespace Creobit.Backend.Store
                     var storeItem = StoreItems.FirstOrDefault(x => x.ItemId == PlayFabItemId);
                     var virtualCurrencyPrices = storeItem?.VirtualCurrencyPrices ?? catalogItem.VirtualCurrencyPrices ?? new Dictionary<string, uint>();
 
+                    if (!virtualCurrencyPrices.Any())
+                    {
+                        var product = new PlayFabProduct(ProductId, default(IPrice), catalogItem, default(StoreItem));
+                        products.Add(product);
+
+                        continue;
+                    }
+
                     foreach (var (PriceId, PlayFabVirtualCurrencyId) in PriceMap)
                     {
                         if (!virtualCurrencyPrices.TryGetValue(PlayFabVirtualCurrencyId, out var value))
