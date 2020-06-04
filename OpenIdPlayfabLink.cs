@@ -80,7 +80,7 @@ namespace Creobit.Backend.Link
 
         private void Unlink(string token, Action onComplete, Action onFailure)
         {
-            var request = new UninkOpenIdConnectRequest()
+            var request = new UnlinkOpenIdConnectRequest()
             {
                 ConnectionId = token
             };
