@@ -25,6 +25,8 @@ namespace Creobit.Backend.Store
                 _storeListener.Initialized -= OnInitialized;
                 _storeListener.InitializeFailed -= OnInitializeFailed;
 
+                _storeListener.ProcessPurchase += OnPurchaseProcessed; 
+
                 ExtensionProvider = eventArgs.ExtensionProvider;
                 StoreController = eventArgs.StoreController;
 
@@ -45,6 +47,11 @@ namespace Creobit.Backend.Store
 
                 onFailure();
             }
+
+            void OnPurchaseProcessed(object sender, ProcessPurchaseEventArgs eventArgs)
+            {
+                PurchaseProcessed?.Invoke(sender, eventArgs);
+            }
         }
 
         #endregion
@@ -60,6 +67,8 @@ namespace Creobit.Backend.Store
         IEnumerable<(string ProductId, (string Id, bool Consumable) NativeProduct)> IUnityStore.ProductMap => ProductMap;
 
         IEnumerable<(string SubscriptionId, string NativeProductId)> IUnityStore.SubscriptionMap => SubscriptionMap;
+
+        public event EventHandler PurchaseProcessed;
 
         #endregion
         #region UnityStore
