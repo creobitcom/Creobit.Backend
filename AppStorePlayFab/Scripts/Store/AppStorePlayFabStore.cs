@@ -126,7 +126,7 @@ namespace Creobit.Backend.Store
                                 CatalogVersion = PlayFabStore.CatalogVersion,
                                 CurrencyCode = metadata.isoCurrencyCode,
                                 PurchasePrice = Convert.ToInt32(metadata.localizedPrice * 100m),
-                                ReceiptData = receiptData
+                                ReceiptData = GetReceiptData(receiptData)
                             },
                             result =>
                             {
@@ -147,6 +147,16 @@ namespace Creobit.Backend.Store
                     }
                 }
             }
+        }
+
+        private string GetReceiptData(string receipt)
+        {
+#if UNITY_STANDALONE_OSX
+            var json = UnityEngine.JsonUtility.FromJson<Receipt>(receipt);
+            return json.Payload;
+#else
+            return receipt;
+#endif
         }
 
         #endregion
