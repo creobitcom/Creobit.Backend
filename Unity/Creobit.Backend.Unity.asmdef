@@ -6,7 +6,8 @@
     "includePlatforms": [
         "Android",
         "Editor",
-        "iOS"
+        "iOS",
+        "macOSStandalone"
     ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
@@ -14,5 +15,6 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": []
+    "versionDefines": [],
+    "noEngineReferences": false
 }
