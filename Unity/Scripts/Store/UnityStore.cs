@@ -276,7 +276,7 @@ namespace Creobit.Backend.Store
         }
 #endif
 
-        private void PurchaseProduct(IPurchasableItem purchasableItem, Action onComplete, Action onFailure)
+        private void PurchaseProduct(IPurchasableItem purchasableItem, Action<string> onComplete, Action onFailure)
         {
             var unityProduct = (IUnityProduct)purchasableItem;
 
@@ -290,9 +290,10 @@ namespace Creobit.Backend.Store
                 _storeListener.ProcessPurchase -= OnProcessPurchase;
                 _storeListener.PurchaseFailed -= OnPurchaseFailed;
 
+                //TODO - not quite shere why exactly we do that.
                 ((UnityProduct)purchasableItem).NativeProduct = eventArgs.NativeProduct;
 
-                onComplete();
+                onComplete(eventArgs.NativeProduct.receipt);
             }
 
             void OnPurchaseFailed(object sender, PurchaseFailedEventArgs eventArgs)
@@ -308,7 +309,7 @@ namespace Creobit.Backend.Store
             }
         }
 
-        private void PurchaseSubscription(IPurchasableItem subscription, Action onComplete, Action onFailure)
+        private void PurchaseSubscription(IPurchasableItem subscription, Action<string> onComplete, Action onFailure)
         {
             var unitySubscription = (IUnitySubscription)subscription;
 
@@ -325,9 +326,10 @@ namespace Creobit.Backend.Store
                 var subscriptionManager = new SubscriptionManager(eventArgs.NativeProduct, null);
                 var subscriptionInfo = subscriptionManager.getSubscriptionInfo();
 
+                //TODO - not quite shere why exactly we do that.
                 ((UnitySubscription)subscription).NativeProduct = eventArgs.NativeProduct;
 
-                onComplete();
+                onComplete(eventArgs.NativeProduct.receipt);
             }
 
             void OnPurchaseFailed(object sender, PurchaseFailedEventArgs eventArgs)
@@ -423,54 +425,6 @@ namespace Creobit.Backend.Store
 
                 return subscriptions;
             }
-        }
-
-        private sealed class StoreListener : IStoreListener
-        {
-            #region IStoreListener
-
-            void IStoreListener.OnInitialized(IStoreController controller, IExtensionProvider provider)
-            {
-                var eventArgs = new InitializedEventArgs(controller, provider);
-
-                Initialized(this, eventArgs);
-            }
-
-            void IStoreListener.OnInitializeFailed(InitializationFailureReason reason)
-            {
-                var eventArgs = new InitializeFailedEventArgs(reason);
-
-                InitializeFailed(this, eventArgs);
-            }
-
-            void IStoreListener.OnPurchaseFailed(NativeProduct product, PurchaseFailureReason reason)
-            {
-                var eventArgs = new PurchaseFailedEventArgs(product, reason);
-
-                PurchaseFailed(this, eventArgs);
-            }
-
-            PurchaseProcessingResult IStoreListener.ProcessPurchase(PurchaseEventArgs purchaseEventArgs)
-            {
-                var eventArgs = new ProcessPurchaseEventArgs(purchaseEventArgs.purchasedProduct);
-
-                ProcessPurchase(this, eventArgs);
-
-                return PurchaseProcessingResult.Complete;
-            }
-
-            #endregion
-            #region StoreListener
-
-            public event EventHandler<InitializedEventArgs> Initialized = delegate { };
-
-            public event EventHandler<InitializeFailedEventArgs> InitializeFailed = delegate { };
-
-            public event EventHandler<PurchaseFailedEventArgs> PurchaseFailed = delegate { };
-
-            public event EventHandler<ProcessPurchaseEventArgs> ProcessPurchase = delegate { };
-
-            #endregion
         }
 
         private sealed class InitializedEventArgs : EventArgs

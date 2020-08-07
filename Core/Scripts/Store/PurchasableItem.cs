@@ -8,7 +8,7 @@ namespace Creobit.Backend.Store
 
         IPrice IPurchasable.Price => Price;
 
-        void IPurchasable.Purchase(Action onComplete, Action onFailure) => PurchaseDelegate(this, onComplete, onFailure);
+        void IPurchasable.Purchase(Action onComplete, Action onFailure) => PurchaseDelegate(this, receipt => onComplete?.Invoke(), onFailure);
 
         #endregion
 
@@ -29,15 +29,15 @@ namespace Creobit.Backend.Store
             Price = price;
         }
 
-        private Action<IPurchasableItem, Action, Action> _purchaseDelegate;
+        private Action<IPurchasableItem, Action<string>, Action> _purchaseDelegate;
 
-        public Action<IPurchasableItem, Action, Action> PurchaseDelegate
+        public Action<IPurchasableItem, Action<string>, Action> PurchaseDelegate
         {
             get => _purchaseDelegate ?? Purchase;
             set => _purchaseDelegate = value;
         }
 
-        private void Purchase(IPurchasableItem product, Action onComplete, Action onFailure)
+        private void Purchase(IPurchasableItem product, Action<string> onComplete, Action onFailure)
         {
             onFailure();
         }

@@ -99,21 +99,24 @@ namespace Creobit.Backend.Store
 
             product.PurchaseDelegate = Purchase;
 
-            void Purchase(IPurchasableItem unityProduct, Action onComplete, Action onFailure)
+            void Purchase(IPurchasableItem unityProduct, Action<string> onComplete, Action onFailure)
             {
-                purchaseDelegate(unityProduct,
-                    () =>
+                purchaseDelegate
+                (
+                    unityProduct,
+                    receipt =>
                     {
                         var nativeProduct = ((IUnityProduct)unityProduct).NativeProduct;
 
-                        Validate(nativeProduct);
-                    }, onFailure);
+                        Validate(nativeProduct, receipt);
+                    },
+                    onFailure
+                );
 
-                void Validate(NativeProduct nativeProduct)
+                void Validate(NativeProduct nativeProduct, string receiptData)
                 {
                     var metadata = nativeProduct.metadata;
                     var appleExtensions = AppStoreStore.AppleExtensions;
-                    var receiptData = appleExtensions.GetTransactionReceiptForProduct(nativeProduct);
 
                     try
                     {
@@ -127,7 +130,7 @@ namespace Creobit.Backend.Store
                             },
                             result =>
                             {
-                                onComplete();
+                                onComplete(receiptData);
                             },
                             error =>
                             {

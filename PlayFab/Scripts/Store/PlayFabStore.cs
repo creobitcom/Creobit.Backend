@@ -177,14 +177,14 @@ namespace Creobit.Backend.Store
             set => _subscriptions = value;
         }
 
-        protected virtual void PurchaseViaRealCurrency(IPurchasableItem purchasableItem, Action onComplete, Action onFailure)
+        protected virtual void PurchaseViaRealCurrency(IPurchasableItem purchasableItem, Action<string> onComplete, Action onFailure)
         {
             ExceptionHandler.Process(new NotSupportedException());
 
             onFailure();
         }
 
-        protected virtual void PurchaseViaVirtualCurrency(IPurchasableItem purchasableItem, Action onComplete, Action onFailure)
+        protected virtual void PurchaseViaVirtualCurrency(IPurchasableItem purchasableItem, Action<string> onComplete, Action onFailure)
         {
             var playFabProduct = (IPlayFabProduct)purchasableItem;
             var playFabPrice = (IPlayFabPrice)purchasableItem.Price;
@@ -203,7 +203,7 @@ namespace Creobit.Backend.Store
                     },
                     result =>
                     {
-                        onComplete();
+                        onComplete(string.Empty);
                     },
                     error =>
                     {
